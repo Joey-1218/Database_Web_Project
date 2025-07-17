@@ -1,5 +1,5 @@
 import React from "react";
-import SongBrowser from './pages/SongBrowser'
+import SongBrowser from '../pages/SongBrowser'
 import tracksData from "../data/tracks.json";
 
 function App() {
