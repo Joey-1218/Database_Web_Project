@@ -1,3 +1,6 @@
+import React, { memo } from "react"
+
+
 export default function RegisterPage() {
   return (
     <div>

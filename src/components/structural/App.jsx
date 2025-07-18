@@ -1,29 +1,54 @@
 import React from "react";
-import SongBrowser from '../pages/SongBrowser'
+import { HashRouter, Route, Routes } from "react-router-dom";
+
+import HomePage from '../pages/HomePage';
+import LoginPage from '../auth/LoginPage';
+import LogoutPage from '../auth/LogoutPage';
+import RegisterPage from '../auth/RegisterPage';
+import AlbumsPage from '../pages/AlbumsPage';
+import PlaylistPage from '../pages/PlaylistPage';
+import FavSong from '../pages/FavSong';
+import SongBrowser from '../pages/SongBrowser';
+import NoMatchPage from "../pages/NoMatchPage";
+import SpotifyLayout from "./SpotifyLayout";
+
+//TODO: useContext rather than import here
 import tracksData from "../data/tracks.json";
 
 function App() {
+
   const [favorites, setFavorites] = React.useState([]);
 
-  const toggleFav = (trackId) => {
-    setFavorites((prev) =>
-      prev.includes(trackId)
-        ? prev.filter((id) => id !== trackId)
-        : [...prev, trackId]
-    );
-  };
+    const toggleFav = (trackId) => {
+        setFavorites((prev) =>
+            prev.includes(trackId)
+                ? prev.filter((id) => id !== trackId)
+                : [...prev, trackId]
+        );
+    };
 
   return (
-    <>
-      <main style={{ padding: "1rem" }}>
-        <h1>Spotify Explorer Lite (Draft)</h1>
-        <SongBrowser
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<SpotifyLayout/>}>
+          <Route index element={<HomePage />} />
+          <Route path="login" element={<LoginPage />}></Route>
+          <Route path="register" element={<RegisterPage />}></Route>
+          <Route path="logout" element={<LogoutPage />}></Route>
+
+          <Route path="library/songs" element={<SongBrowser 
           tracks={tracksData}
           favorites={favorites}
           toggleFav={toggleFav}
-        />
-      </main>
-    </>
+          />}></Route>
+          <Route path="library/albums" element={<AlbumsPage />}></Route>
+          <Route path="library/playlists" element={<PlaylistPage />}></Route>
+          <Route path="library/favsongs" element={<FavSong />}></Route>
+          <Route path="*" element={<NoMatchPage />} />
+        </Route>
+      </Routes>
+    </HashRouter>
+  
   );
 }
 

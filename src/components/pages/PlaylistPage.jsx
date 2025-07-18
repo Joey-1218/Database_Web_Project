@@ -1,3 +1,5 @@
+import React, { memo } from "react"
+
 export default function PlaylistsPage() {
   return (
     <div>

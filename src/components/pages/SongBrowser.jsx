@@ -1,16 +1,30 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import tracksData from "../data/tracks.json";
-import { Button, Card, CardBody, CardTitle, Col, Form, Row } from "react-bootstrap";
+import { Button, Card, CardBody, CardTitle, Col, Form, Row, Pagination } from "react-bootstrap";
+const PAGE_SIZE = 20;
+
 
 export default function SongBrowser({ tracks, favorites, toggleFav }) {
     const trackNameInputRef = useRef();
     const trackArtistInputRef = useRef();
     const albumNameInputRef = useRef();
 
+    // const [page, setPage] = useState(1);
+
+    // useEffect(() => setPage(1), );
+
+    // const totalPages   = Math.max(1, Math.ceil(tracks.length / PAGE_SIZE)); // at least 1
+    // const pageStartIdx = (page - 1) * PAGE_SIZE;
+    // const pageSlice    = tracks.slice(pageStartIdx, pageStartIdx + PAGE_SIZE); 
+
+    // const handlePageClick = p => setPage(p);
+    // const handlePrev      = () => setPage(p => Math.max(1, p - 1));
+    // const handleNext      = () => setPage(p => Math.min(totalPages, p + 1));
+
+
     return (
         <section>
             <h2>Song Browser (Draft)</h2>
-            <p>Total tracks: {tracksData.length}</p>
             <Row>
                 <Col xs={2} md={4} lg={4}>
                     <div className="mb-4">
@@ -73,6 +87,35 @@ export default function SongBrowser({ tracks, favorites, toggleFav }) {
 
                 </Col>
             </Row>
+
+            {/* <Pagination className="justify-content-center">
+                <Pagination.Prev
+                    disabled={page === 1 || filteredStudents.length === 0}
+                    onClick={handlePrev}
+                >
+                    Prev
+                </Pagination.Prev>
+
+                {Array.from({ length: totalPages }, (_, idx) => {
+                    const p = idx + 1;
+                    return (
+                        <Pagination.Item
+                            key={p}
+                            active={p === page}
+                            onClick={() => handlePageClick(p)}
+                        >
+                            {p}
+                        </Pagination.Item>
+                    );
+                })}
+
+                <Pagination.Next
+                    disabled={page === totalPages || tracks.length === 0}
+                    onClick={handleNext}
+                >
+                    Next
+                </Pagination.Next>
+            </Pagination> */}
 
         </section>
     )
