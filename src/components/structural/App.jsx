@@ -12,26 +12,17 @@ import SongBrowser from '../pages/SongBrowser';
 import NoMatchPage from "../pages/NoMatchPage";
 import SpotifyLayout from "./SpotifyLayout";
 
-//TODO: useContext rather than import here
-import tracksData from "../data/tracks.json";
+import TracksData from "../data/tracks.json";
 import TracksContext from "../contexts/TracksContext";
 
 function App() {
 
-  const [favorites, setFavorites] = React.useState([]);
+  // const [favorites, setFavorites] = React.useState([]);
 
-  const [tracks, setTracks] = useState(tracksData);
-
-  const toggleFav = (trackId) => {
-    setFavorites((prev) =>
-      prev.includes(trackId)
-        ? prev.filter((id) => id !== trackId)
-        : [...prev, trackId]
-    );
-  };
+  const [allTracks, setTracks] = useState(TracksData);
 
   return (
-    <TracksContext.Provider value={{tracks, setTracks}}>
+    <TracksContext.Provider value={{allTracks, setTracks}}>
       <HashRouter>
         <Routes>
           <Route path="/" element={<SpotifyLayout />}>
@@ -40,11 +31,7 @@ function App() {
             <Route path="register" element={<RegisterPage />}></Route>
             <Route path="logout" element={<LogoutPage />}></Route>
 
-            <Route path="library/songs" element={<SongBrowser
-              tracks={tracksData}
-              favorites={favorites}
-              toggleFav={toggleFav}
-            />}></Route>
+            <Route path="library/songs" element={<SongBrowser/>}></Route>
             <Route path="library/albums" element={<AlbumsPage />}></Route>
             <Route path="library/playlists" element={<PlaylistPage />}></Route>
             <Route path="library/favsongs" element={<FavSong />}></Route>

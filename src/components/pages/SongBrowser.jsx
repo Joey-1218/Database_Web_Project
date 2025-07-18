@@ -1,15 +1,31 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Button, Card, CardBody, CardTitle, Col, Form, Row, Pagination } from "react-bootstrap";
 import TracksContext from "../contexts/TracksContext";
+import TrackCard from "./content/TrackCard";
 const PAGE_SIZE = 20;
 
 
-export default function SongBrowser({ tracks, favorites, toggleFav }) {
+export default function SongBrowser() {
     const trackNameInputRef = useRef();
     const trackArtistInputRef = useRef();
     const albumNameInputRef = useRef();
 
-    const { tracks } = useContext(TracksContext);
+    const { allTracks } = useContext(TracksContext);
+
+    const [favTrackIds, setFavTrackIds] = useState(() => {
+        return JSON.parse(localStorage.getItem("favriouteTracksIds") || "[]");
+    });
+    useEffect(() => {
+        localStorage.setItem("favriouteTracksIds", JSON.stringify(favTrackIds));
+    }, [favTrackIds]);
+
+    const toggleFav = (trackId) => {
+        setFavTrackIds((prev) =>
+            prev.includes(trackId)
+                ? prev.filter((id) => id !== trackId)
+                : [...prev, trackId]
+        );
+    };
 
     // const [page, setPage] = useState(1);
 
@@ -70,7 +86,23 @@ export default function SongBrowser({ tracks, favorites, toggleFav }) {
                     </div>
                 </Col>
                 <Col xs={10} md={8} lg={8}>
-                    <Card>
+                    {allTracks.length === 0 ?
+                        (
+                            <p>Loading</p>
+                        ) : (
+                            <Row>
+                                {allTracks.map(track => (
+                                    <Col key={track.track_id} xs={10} sm={6} md={4} lg={3}>
+                                        <TrackCard
+                                            track={track}
+                                            onFav={() => toggleFav(track.track_id)}
+                                        />
+                                    </Col>
+                                ))}
+                            </Row>
+                        )}
+
+                    {/* <Card>
                         <ul style={{
                             overflow: "auto",
                             textAlign: "left",
@@ -80,12 +112,12 @@ export default function SongBrowser({ tracks, favorites, toggleFav }) {
                                 <li key={t.track_id}>
                                     {t.track_name} - {t.track_artist}{" "}
                                     <Button variant="secondary" onClick={() => toggleFav(t.track_id)}>
-                                        {favorites.includes(t.track_id) ? "♥" : "♡"}
+                                        {favTrackIds.includes(t.track_id) ? "♥" : "♡"}
                                     </Button>
                                 </li>
                             ))}
                         </ul>
-                    </Card>
+                    </Card> */}
 
                 </Col>
             </Row>
