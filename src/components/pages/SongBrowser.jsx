@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import tracksData from "../data/tracks.json";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Button, Card, CardBody, CardTitle, Col, Form, Row, Pagination } from "react-bootstrap";
+import TracksContext from "../contexts/TracksContext";
 const PAGE_SIZE = 20;
 
 
@@ -8,6 +8,8 @@ export default function SongBrowser({ tracks, favorites, toggleFav }) {
     const trackNameInputRef = useRef();
     const trackArtistInputRef = useRef();
     const albumNameInputRef = useRef();
+
+    const { tracks } = useContext(TracksContext);
 
     // const [page, setPage] = useState(1);
 
@@ -74,7 +76,7 @@ export default function SongBrowser({ tracks, favorites, toggleFav }) {
                             textAlign: "left",
                             paddingLeft: "1rem",
                         }}>
-                            {tracksData.map(t => (
+                            {tracks.map(t => (
                                 <li key={t.track_id}>
                                     {t.track_name} - {t.track_artist}{" "}
                                     <Button variant="secondary" onClick={() => toggleFav(t.track_id)}>
