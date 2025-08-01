@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Button, Card, CardBody, CardTitle, Col, Form, Row, Pagination } from "react-bootstrap";
 import TracksContext from "../contexts/TracksContext";
 import TrackCard from "./content/TrackCard";
+import useStorage from "../hooks/useStorage";
 const PAGE_SIZE = 20;
 
 
@@ -12,12 +13,7 @@ export default function SongBrowser() {
 
     const { allTracks } = useContext(TracksContext);
 
-    const [favTrackIds, setFavTrackIds] = useState(() => {
-        return JSON.parse(localStorage.getItem("favriouteTracksIds") || "[]");
-    });
-    useEffect(() => {
-        localStorage.setItem("favriouteTracksIds", JSON.stringify(favTrackIds));
-    }, [favTrackIds]);
+    const [favTrackIds, setFavTrackIds] = useStorage("favTrackIds", []);
 
     const toggleFav = (trackId) => {
         setFavTrackIds((prev) =>
@@ -95,6 +91,7 @@ export default function SongBrowser() {
                                     <Col key={track.track_id} xs={10} sm={6} md={4} lg={3}>
                                         <TrackCard
                                             track={track}
+                                            isFav={favTrackIds.includes(track.track_id)}
                                             onFav={() => toggleFav(track.track_id)}
                                         />
                                     </Col>

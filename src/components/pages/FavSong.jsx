@@ -3,15 +3,12 @@ import TracksContext from "../contexts/TracksContext";
 import FavCard from "./content/FavCard";
 import { Col, Row } from "react-bootstrap";
 
+import useStorage from "../hooks/useStorage";
+
 function FavSong() {
     const { allTracks } = useContext(TracksContext);
 
-    const [favTrackIds, setFavTrackIds] = useState(() => {
-        return JSON.parse(localStorage.getItem("favriouteTracksIds") || "[]");
-    });
-    useEffect(() => {
-        localStorage.setItem("favriouteTracksIds", JSON.stringify(favTrackIds));
-    }, [favTrackIds]);
+    const [favTrackIds, setFavTrackIds] = useStorage("favTrackIds", []);
 
     const handleUnselect = (id) =>
         setFavTrackIds(prev => prev.filter(pid => pid !== id));

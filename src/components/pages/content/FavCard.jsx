@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button, Card } from "react-bootstrap";
 
 export default function FavCard({ track, onUnselect }) {
-  // const { favTracks } = useContext(TracksContext);
 
     return (
     <Card style={{ width: "18rem", margin: "0.5rem" }}>
@@ -17,8 +16,7 @@ export default function FavCard({ track, onUnselect }) {
          className="me-2" 
          onClick={() => onUnselect(track.track_id)}
          >
-           {/* {favTrackIds.includes(t.track_id) ? "♥" : "♡"} */}
-           Unselect
+           {"♥"}
         </Button>
       </Card.Body>
     </Card>
