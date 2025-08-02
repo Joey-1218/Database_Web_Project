@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, CardBody, CardTitle, Col, Form, Row, Pagination } from "react-bootstrap";
 import TracksContext from "../contexts/TracksContext";
 import TrackCard from "./content/TrackCard";
 import useStorage from "../hooks/useStorage";
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 12;
 
 
 export default function SongBrowser() {
@@ -23,18 +23,21 @@ export default function SongBrowser() {
         );
     };
 
-    // const [page, setPage] = useState(1);
+    const [page, setPage] = useState(1);
 
-    // useEffect(() => setPage(1), );
+    // Whenever allTracks changes (e.g., first load or after a new search),
+    // go back to the first page.
+    useEffect(() => setPage(1), [allTracks]);
 
-    // const totalPages   = Math.max(1, Math.ceil(tracks.length / PAGE_SIZE)); // at least 1
-    // const pageStartIdx = (page - 1) * PAGE_SIZE;
-    // const pageSlice    = tracks.slice(pageStartIdx, pageStartIdx + PAGE_SIZE); 
+    const totalPages = Math.max(1, Math.ceil(allTracks.length / PAGE_SIZE));
+    const pageSlice = useMemo(()=>{
+        const startIndex = (page - 1) * PAGE_SIZE;
+        return allTracks.slice(startIndex, startIndex + PAGE_SIZE)
+    }, [allTracks, page]);
 
-    // const handlePageClick = p => setPage(p);
-    // const handlePrev      = () => setPage(p => Math.max(1, p - 1));
-    // const handleNext      = () => setPage(p => Math.min(totalPages, p + 1));
-
+    const handlePageClick = p => setPage(p);
+    const handlePrev = () => setPage(p => Math.max(1, p - 1));
+    const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
 
     return (
         <section>
@@ -87,7 +90,7 @@ export default function SongBrowser() {
                             <p>Loading</p>
                         ) : (
                             <Row>
-                                {allTracks.map(track => (
+                                {pageSlice.map(track => (
                                     <Col key={track.track_id} xs={10} sm={6} md={4} lg={3}>
                                         <TrackCard
                                             track={track}
@@ -98,30 +101,12 @@ export default function SongBrowser() {
                                 ))}
                             </Row>
                         )}
-
-                    {/* <Card>
-                        <ul style={{
-                            overflow: "auto",
-                            textAlign: "left",
-                            paddingLeft: "1rem",
-                        }}>
-                            {tracks.map(t => (
-                                <li key={t.track_id}>
-                                    {t.track_name} - {t.track_artist}{" "}
-                                    <Button variant="secondary" onClick={() => toggleFav(t.track_id)}>
-                                        {favTrackIds.includes(t.track_id) ? "♥" : "♡"}
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    </Card> */}
-
                 </Col>
             </Row>
 
-            {/* <Pagination className="justify-content-center">
+            <Pagination className="justify-content-center">
                 <Pagination.Prev
-                    disabled={page === 1 || filteredStudents.length === 0}
+                    disabled={page === 1}
                     onClick={handlePrev}
                 >
                     Prev
@@ -141,12 +126,12 @@ export default function SongBrowser() {
                 })}
 
                 <Pagination.Next
-                    disabled={page === totalPages || tracks.length === 0}
+                    disabled={page === totalPages}
                     onClick={handleNext}
                 >
                     Next
                 </Pagination.Next>
-            </Pagination> */}
+            </Pagination>
 
         </section>
     )
