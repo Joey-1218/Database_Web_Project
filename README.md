@@ -52,3 +52,28 @@ npm install            # or yarn / pnpm
 
 # 3. Run dev server
 npm run dev            # Vite → http://localhost:5173/
+```
+
+## 📂 Key Directories
+```bash
+src/
+ ├─ components/structural/   # Layout + navbar
+ ├─ pages/                   # Route targets (Home, Songs, Favorites, etc.)
+ ├─ contexts/TracksContext.js# Global track dataset (no favorites yet)
+ ├─ data/tracks.json         # 200-row sample subset (for quick dev)
+ └─ assets/                  # Logo, images
+```
+
+## 🗺 Roadmap
+1. **Back-end API** — FastAPI or Flask + MySQL;
+migrate favorites & auth off localStorage.
+
+2. **Auth flow** — JWT login, register, logout.
+
+3. **Album / Playlist views** — real joins once DB is in place.
+
+4. **Pagination & advanced filtering** (energy, tempo, genre chips).
+
+5. **Deploy** — Netlify/Render front-end, Railway for back-end.
+
+Feel free to open issues or PRs—everything is work-in-progress!
