@@ -1,42 +1,57 @@
 import React, { useContext, useEffect, useMemo, useState } from "react"
 import TracksContext from "../contexts/TracksContext";
 import FavCard from "./content/FavCard";
-import { Accordion, Button, Col, Row } from "react-bootstrap";
+import { Accordion, Button, Pagination } from "react-bootstrap";
 
 import useStorage from "../hooks/useStorage";
+
+const PAGE_SIZE = 10;
 
 function FavSong() {
     const { allTracks } = useContext(TracksContext);
 
     const [favTrackIds, setFavTrackIds] = useStorage("favTrackIds", []);
+    const favTracks = useMemo(
+        () => allTracks.filter(t => favTrackIds.includes(t.track_id)),
+        [allTracks, favTrackIds]                 // stable reference until inputs change
+    );
+
+    const [page, setPage] = useState(1);
+    useEffect(() => setPage(1), [favTracks]);
+    const totalPages = Math.max(1, Math.ceil(favTracks.length / PAGE_SIZE));
+
+    const pageSlice = useMemo(() => {
+        const start = (page - 1) * PAGE_SIZE;
+        return favTracks.slice(start, start + PAGE_SIZE);
+    }, [favTracks, page]);
+
+
+    const nextPage = () => setPage(p => Math.min(totalPages, p + 1));
+    const prevPage = () => setPage(p => Math.max(1, p - 1));
+    const goToPage = p => setPage(p);
 
     const handleUnselect = (id) =>
         setFavTrackIds(prev => prev.filter(pid => pid !== id));
 
-    const favTracks = allTracks.filter((t) => favTrackIds.includes(t.track_id));
+    const [openKeys, setOpenKeys] = useState([]); // array of eventKeys
 
-    const [openKeys, setOpenKeys] = useState([]);   // array of eventKeys
+    const toggle = (eventKeys) => {
+        setOpenKeys(eventKeys ?? []);
+    };
 
-    const toggle = key =>
-        setOpenKeys(prev =>
-            prev.includes(key)
-                ? prev.filter(k => k !== key)   // close it
-                : [...prev, key]                // open it
-        );
+    const toggleAll = () =>
+        setOpenKeys((prev) => (prev.length ? [] : keysOnPage));
 
-    const allKeys = useMemo(
-        () => favTracks.map((_, idx) => String(idx)),
-        [favTracks]
-    );
+    useEffect(() => setOpenKeys([]), [page]);
 
-    const toggleAll = () => {
-        if (openKeys.length > 0) {
-            setOpenKeys([]);
-        } else {
-            setOpenKeys(allKeys);
-        }
-    }
     const allClosed = openKeys.length === 0;
+
+    const eventKeyFor = (t) => String(t.track_id);
+
+    const keysOnPage = useMemo(
+        () => pageSlice.map(eventKeyFor),             // ② use pageSlice, not favTracks
+        [pageSlice]
+    );
 
     return <>
         <h1>Your favorite songs!</h1>
@@ -44,19 +59,18 @@ function FavSong() {
             className="mb-3"
             variant={allClosed ? "primary" : "secondary"}
             onClick={toggleAll}
-            disabled={!favTracks.length}
+            disabled={pageSlice.length === 0}
         >
             {allClosed ? "Expand all" : "Collapse all"}
         </Button>
 
-        {favTracks.length === 0 ? (
+        {pageSlice.length === 0 ? (
             <p>You have no favrioute songs yet.</p>
         ) : (
-            <Accordion activeKey={openKeys} onSelect={toggle}>
-                {favTracks.map((ft, idx) => {
-                    const key = String(idx);
+            <Accordion alwaysOpen activeKey={openKeys} onSelect={toggle}>
+                {pageSlice.map((ft) => {
                     return (
-                        <Accordion.Item key={ft.track_id} eventKey={key}>
+                        <Accordion.Item key={ft.track_id} eventKey={String(ft.track_id)}>
                             <Accordion.Header>{ft.track_name}</Accordion.Header>
                             <Accordion.Body>
                                 <h5>{ft.track_artist}</h5>
@@ -75,6 +89,31 @@ function FavSong() {
                 })}
             </Accordion>
         )}
+
+        <Pagination className="justify-content-center mt-3">
+            <Pagination.Prev
+                disabled={page === 1}
+                onClick={prevPage}
+            />
+
+            {Array.from({ length: totalPages }, (_, i) => {
+                const p = i + 1;
+                return (
+                    <Pagination.Item
+                        key={p}
+                        active={p === page}
+                        onClick={() => goToPage(p)}
+                    >
+                        {p}
+                    </Pagination.Item>
+                );
+            })}
+
+            <Pagination.Next
+                disabled={page === totalPages}
+                onClick={nextPage}
+            />
+        </Pagination>
     </>
 }
 
