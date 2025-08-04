@@ -17,6 +17,9 @@ export default function SongBrowser() {
 
     const [favTrackIds, setFavTrackIds] = useStorage("favTrackIds", []);
 
+    const [filteredTracks, setFilteredTracks] = useState(allTracks);
+    useEffect(() => setFilteredTracks(allTracks), [allTracks]);
+
     const toggleFav = (trackId) => {
         setFavTrackIds((prev) =>
             prev.includes(trackId)
@@ -27,25 +30,44 @@ export default function SongBrowser() {
 
     const onSearchTrack = (e) => {
         e.preventDefault();
-        // read refs and run your search...
+        const n = trackNameInputRef.current.value.trim().toLowerCase();
+        const a = trackArtistInputRef.current.value.trim().toLowerCase();
+
+        setFilteredTracks(
+            allTracks.filter(t => {
+                const nameMatch = !n || t.track_name.toLowerCase().includes(n);
+                const artistMatch = !a || t.track_artist.toLowerCase().includes(a);
+                return nameMatch && artistMatch;
+            })
+        );
+    };
+
+    const onReset = () => {
+        // clear inputs
+        if (trackNameInputRef.current) trackNameInputRef.current.value = "";
+        if (trackArtistInputRef.current) trackArtistInputRef.current.value = "";
+
+        // show all tracks again and go to page 1
+        setFilteredTracks(allTracks);
+        setPage(1);
     };
 
     const onSearchAlbum = (e) => {
         e.preventDefault();
-        // read refs and run your search...
+        // read refs and run search...
     };
 
     const [page, setPage] = useState(1);
 
-    // Whenever allTracks changes (e.g., first load or after a new search),
+    // Whenever filteredTracks changes (e.g., first load or after a new search),
     // go back to the first page.
-    useEffect(() => setPage(1), [allTracks]);
+    useEffect(() => setPage(1), [filteredTracks]);
 
-    const totalPages = Math.max(1, Math.ceil(allTracks.length / PAGE_SIZE));
+    const totalPages = Math.max(1, Math.ceil(filteredTracks.length / PAGE_SIZE));
     const pageSlice = useMemo(() => {
         const startIndex = (page - 1) * PAGE_SIZE;
-        return allTracks.slice(startIndex, startIndex + PAGE_SIZE)
-    }, [allTracks, page]);
+        return filteredTracks.slice(startIndex, startIndex + PAGE_SIZE)
+    }, [filteredTracks, page]);
 
     const handlePageClick = p => setPage(p);
     const handlePrev = () => setPage(p => Math.max(1, p - 1));
@@ -57,19 +79,17 @@ export default function SongBrowser() {
         <section>
             <h1 className="mb-4">Song Browser (Draft)</h1>
             <Row>
-                <Col xs={2} sm={2} md={3} lg={3}>
-                    <SearchSidebar
-                        theme={theme}
-                        trackNameInputRef={trackNameInputRef}
-                        trackArtistInputRef={trackArtistInputRef}
-                        albumNameInputRef={albumNameInputRef}
-                        onSearchTrack={onSearchTrack}
-                        onSearchAlbum={onSearchAlbum}
-                    colProps={{ xs: 12, sm: 12, md: 12, lg: 12 }}  // override if needed
-                    />
-                </Col>
+                <SearchSidebar
+                    theme={theme}
+                    trackNameInputRef={trackNameInputRef}
+                    trackArtistInputRef={trackArtistInputRef}
+                    albumNameInputRef={albumNameInputRef}
+                    onSearchTrack={onSearchTrack}
+                    onReset={onReset}
+                    onSearchAlbum={onSearchAlbum}
+                />
                 <Col xs={10} sm={10} md={9} lg={9}>
-                    {allTracks.length === 0 ?
+                    {filteredTracks.length === 0 ?
                         (
                             <p>Loading</p>
                         ) : (
