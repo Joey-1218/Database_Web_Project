@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, CardBody, CardTitle, Col, Form, Row, Pagination } from "react-bootstrap";
 import TracksContext from "../contexts/TracksContext";
+import { ThemeContext } from "../contexts/ThemeContext";
 import TrackCard from "./content/TrackCard";
 import useStorage from "../hooks/useStorage";
 const PAGE_SIZE = 12;
@@ -39,14 +40,16 @@ export default function SongBrowser() {
     const handlePrev = () => setPage(p => Math.max(1, p - 1));
     const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
 
+    const { theme } = useContext(ThemeContext);
+
     return (
         <section>
-            <h1>Song Browser (Draft)</h1>
+            <h1 className="mb-4">Song Browser (Draft)</h1>
             <Row>
-                <Col xs={2} md={4} lg={4}>
+                <Col xs={2} md={3} lg={3}>
                     <div className="mb-4">
                         <Card>
-                            <CardTitle>Find a track</CardTitle>
+                            <CardTitle className="mx-auto mt-2">Find a track</CardTitle>
                             <CardBody>
                                 <Form /*onSubmit={handleSubmit}*/>
                                     <Form.Group controlId="searchName" className="mb-3">
@@ -62,14 +65,14 @@ export default function SongBrowser() {
                                         />
                                     </Form.Group>
 
-                                    <Button variant='primary' type="submit">Search</Button>
+                                    <Button variant={theme==="light"?'dark':'light'} type="submit">Search</Button>
                                 </Form>
                             </CardBody>
                         </Card>
                     </div>
                     <div>
                         <Card>
-                            <CardTitle>Find an album</CardTitle>
+                            <CardTitle className="mx-auto mt-2">Find an album</CardTitle>
                             <CardBody>
                                 <Form /*onSubmit={handleSubmit}*/>
                                     <Form.Group controlId="searchAlbumName" className="mb-3">
@@ -78,13 +81,13 @@ export default function SongBrowser() {
                                             ref={albumNameInputRef}
                                         />
                                     </Form.Group>
-                                    <Button variant='primary' type="submit">Search</Button>
+                                    <Button variant={theme==="light"?'dark':'light'} type="submit">Search</Button>
                                 </Form>
                             </CardBody>
                         </Card>
                     </div>
                 </Col>
-                <Col xs={10} md={8} lg={8}>
+                <Col xs={10} md={9} lg={9}>
                     {allTracks.length === 0 ?
                         (
                             <p>Loading</p>
