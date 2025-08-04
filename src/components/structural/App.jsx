@@ -14,6 +14,7 @@ import SpotifyLayout from "./SpotifyLayout";
 
 import TracksData from "../data/tracks.json";
 import TracksContext from "../contexts/TracksContext";
+import ThemeProvider from "../contexts/ThemeContext";
 
 function App() {
 
@@ -22,23 +23,25 @@ function App() {
   const [allTracks, setTracks] = useState(TracksData);
 
   return (
-    <TracksContext.Provider value={{allTracks, setTracks}}>
-      <HashRouter>
-        <Routes>
-          <Route path="/" element={<SpotifyLayout />}>
-            <Route index element={<HomePage />} />
-            <Route path="login" element={<LoginPage />}></Route>
-            <Route path="register" element={<RegisterPage />}></Route>
-            <Route path="logout" element={<LogoutPage />}></Route>
+    <TracksContext.Provider value={{ allTracks, setTracks }}>
+      <ThemeProvider>
+        <HashRouter>
+          <Routes>
+            <Route path="/" element={<SpotifyLayout />}>
+              <Route index element={<HomePage />} />
+              <Route path="login" element={<LoginPage />}></Route>
+              <Route path="register" element={<RegisterPage />}></Route>
+              <Route path="logout" element={<LogoutPage />}></Route>
 
-            <Route path="library/songs" element={<SongBrowser/>}></Route>
-            <Route path="library/albums" element={<AlbumsPage />}></Route>
-            <Route path="library/playlists" element={<PlaylistPage />}></Route>
-            <Route path="library/favsongs" element={<FavSong />}></Route>
-            <Route path="*" element={<NoMatchPage />} />
-          </Route>
-        </Routes>
-      </HashRouter>
+              <Route path="library/songs" element={<SongBrowser />}></Route>
+              <Route path="library/albums" element={<AlbumsPage />}></Route>
+              <Route path="library/playlists" element={<PlaylistPage />}></Route>
+              <Route path="library/favsongs" element={<FavSong />}></Route>
+              <Route path="*" element={<NoMatchPage />} />
+            </Route>
+          </Routes>
+        </HashRouter>
+      </ThemeProvider>
     </TracksContext.Provider>
   );
 }

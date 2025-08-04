@@ -73,9 +73,9 @@ function FavSong() {
                         <Accordion.Item key={ft.track_id} eventKey={String(ft.track_id)}>
                             <Accordion.Header>{ft.track_name}</Accordion.Header>
                             <Accordion.Body>
-                                <h5>{ft.track_artist}</h5>
-                                <p>playlist genre: {ft.playlist_genre}</p>
-                                <p>danceability: {ft.danceability}</p>
+                                <p className="mb-1 fs-6 fw-bold">{ft.track_artist}</p>
+                                <p className="mb-1">playlist genre: {ft.playlist_genre}</p>
+                                <p className="mb-1">danceability: {ft.danceability}</p>
                                 <Button
                                     variant="secondary"
                                     className="me-2"

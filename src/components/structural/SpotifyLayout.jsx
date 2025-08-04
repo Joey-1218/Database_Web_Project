@@ -1,8 +1,10 @@
-import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import React, { useContext } from "react";
+import { Col, Container, Nav, Navbar, NavDropdown, Row } from "react-bootstrap";
 import { Link, Outlet } from "react-router-dom";
-import imgSrc from "../../assets/logo.png";
-import React from "react";
+import { ThemeContext } from "../contexts/ThemeContext";
 
+import logo from "../../assets/logo.png";
+import ThemeToggle from "../ThemeToggle";
 
 function SpotifyLayout() {
     const [loginStatus, setLoginStatus] = React.useState(() => {
@@ -25,7 +27,7 @@ function SpotifyLayout() {
                     <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-2">
                         <img
                             alt="logo"
-                            src={imgSrc}
+                            src={logo}
                             width="30"
                             height="30"
                             className="d-inline-block align-top"
@@ -75,11 +77,13 @@ function SpotifyLayout() {
                     </Nav>
                 </Container>
             </Navbar>
+
             <div style={{ margin: "1rem", paddingTop: "4.5rem" }}>
-                {/* <BadgerLoginStatusContext.Provider value={[loginStatus, setLoginStatus]}>
-                    
-                </BadgerLoginStatusContext.Provider> */}
+                <ThemeToggle
+                    className="position-fixed top-1 end-0 p-2"
+                />
                 <Outlet />
+
             </div>
         </div>
     );

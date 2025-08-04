@@ -45,7 +45,6 @@ placeholder until the back-end API is ready.
 ```bash
 # 1. Clone
 git clone https://github.com/<your-org>/spotify-explorer-lite.git
-cd spotify-explorer-lite
 
 # 2. Install deps
 npm install            # or yarn / pnpm

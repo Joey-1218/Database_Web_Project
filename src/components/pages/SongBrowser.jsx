@@ -41,7 +41,7 @@ export default function SongBrowser() {
 
     return (
         <section>
-            <h2>Song Browser (Draft)</h2>
+            <h1>Song Browser (Draft)</h1>
             <Row>
                 <Col xs={2} md={4} lg={4}>
                     <div className="mb-4">
