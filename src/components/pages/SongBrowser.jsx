@@ -4,6 +4,7 @@ import TracksContext from "../contexts/TracksContext";
 import { ThemeContext } from "../contexts/ThemeContext";
 import TrackCard from "./content/TrackCard";
 import useStorage from "../hooks/useStorage";
+import SearchSidebar from "../SearchSideBar";
 const PAGE_SIZE = 12;
 
 
@@ -24,6 +25,16 @@ export default function SongBrowser() {
         );
     };
 
+    const onSearchTrack = (e) => {
+        e.preventDefault();
+        // read refs and run your search...
+    };
+
+    const onSearchAlbum = (e) => {
+        e.preventDefault();
+        // read refs and run your search...
+    };
+
     const [page, setPage] = useState(1);
 
     // Whenever allTracks changes (e.g., first load or after a new search),
@@ -31,7 +42,7 @@ export default function SongBrowser() {
     useEffect(() => setPage(1), [allTracks]);
 
     const totalPages = Math.max(1, Math.ceil(allTracks.length / PAGE_SIZE));
-    const pageSlice = useMemo(()=>{
+    const pageSlice = useMemo(() => {
         const startIndex = (page - 1) * PAGE_SIZE;
         return allTracks.slice(startIndex, startIndex + PAGE_SIZE)
     }, [allTracks, page]);
@@ -46,55 +57,25 @@ export default function SongBrowser() {
         <section>
             <h1 className="mb-4">Song Browser (Draft)</h1>
             <Row>
-                <Col xs={2} md={3} lg={3}>
-                    <div className="mb-4">
-                        <Card>
-                            <CardTitle className="mx-auto mt-2">Find a track</CardTitle>
-                            <CardBody>
-                                <Form /*onSubmit={handleSubmit}*/>
-                                    <Form.Group controlId="searchName" className="mb-3">
-                                        <Form.Label>Track Name</Form.Label>
-                                        <Form.Control
-                                            ref={trackNameInputRef}
-                                        />
-                                    </Form.Group>
-                                    <Form.Group controlId="searchArtist" className="mb-3">
-                                        <Form.Label>Track Artist</Form.Label>
-                                        <Form.Control
-                                            ref={trackArtistInputRef}
-                                        />
-                                    </Form.Group>
-
-                                    <Button variant={theme==="light"?'dark':'light'} type="submit">Search</Button>
-                                </Form>
-                            </CardBody>
-                        </Card>
-                    </div>
-                    <div>
-                        <Card>
-                            <CardTitle className="mx-auto mt-2">Find an album</CardTitle>
-                            <CardBody>
-                                <Form /*onSubmit={handleSubmit}*/>
-                                    <Form.Group controlId="searchAlbumName" className="mb-3">
-                                        <Form.Label>Album Name</Form.Label>
-                                        <Form.Control
-                                            ref={albumNameInputRef}
-                                        />
-                                    </Form.Group>
-                                    <Button variant={theme==="light"?'dark':'light'} type="submit">Search</Button>
-                                </Form>
-                            </CardBody>
-                        </Card>
-                    </div>
+                <Col xs={2} sm={2} md={3} lg={3}>
+                    <SearchSidebar
+                        theme={theme}
+                        trackNameInputRef={trackNameInputRef}
+                        trackArtistInputRef={trackArtistInputRef}
+                        albumNameInputRef={albumNameInputRef}
+                        onSearchTrack={onSearchTrack}
+                        onSearchAlbum={onSearchAlbum}
+                    colProps={{ xs: 12, sm: 12, md: 12, lg: 12 }}  // override if needed
+                    />
                 </Col>
-                <Col xs={10} md={9} lg={9}>
+                <Col xs={10} sm={10} md={9} lg={9}>
                     {allTracks.length === 0 ?
                         (
                             <p>Loading</p>
                         ) : (
                             <Row>
                                 {pageSlice.map(track => (
-                                    <Col key={track.track_id} xs={10} sm={6} md={4} lg={3}>
+                                    <Col key={track.track_id} xs={10} sm={6} md={4} lg={3} className="mb-3">
                                         <TrackCard
                                             track={track}
                                             isFav={favTrackIds.includes(track.track_id)}
@@ -107,7 +88,7 @@ export default function SongBrowser() {
                 </Col>
             </Row>
 
-            <Pagination className="justify-content-center">
+            <Pagination className="fixed-bottom justify-content-center">
                 <Pagination.Prev
                     disabled={page === 1}
                     onClick={handlePrev}
