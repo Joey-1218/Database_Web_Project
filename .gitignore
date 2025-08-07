@@ -7,10 +7,26 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Dependency directories
+frontend/node_modules/
+backend/node_modules/
+
+# Build / output
+dist/
+dist-ssr/
+frontend/dist/
+frontend/.vite/
+backend/dist/
+
+# Environment & secret files
+.env*
 *.local
+!.env.example
+
+# SQLite / local DB files
+backend/sql/*.db
+backend/sql/*.sqlite*
+*.sqlite3
 
 # Editor directories and files
 .vscode/*
@@ -23,5 +39,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Dataset files
 spotify_songs.csv
 
+# Docker artifacts / tarballs (optional)
+*.tar
+*.tar.gz

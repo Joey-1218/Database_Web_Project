@@ -5,6 +5,7 @@ import { ThemeContext } from "../contexts/ThemeContext";
 import TrackCard from "./content/TrackCard";
 import useStorage from "../hooks/useStorage";
 import SearchSidebar from "../SearchSideBar";
+import api from "../../api";
 const PAGE_SIZE = 12;
 
 
@@ -14,6 +15,10 @@ export default function SongBrowser() {
     const albumNameInputRef = useRef();
 
     const { allTracks } = useContext(TracksContext);
+    // JUST PUT AN EXAMPLE HERE, WORK ON THIS LATER.
+    useEffect(() => {
+        api.get("/tracks?limit=200").then(res => setTracks(res.data));
+    }, []);
 
     const [favTrackIds, setFavTrackIds] = useStorage("favTrackIds", []);
 
