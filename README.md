@@ -75,4 +75,13 @@ migrate favorites & auth off localStorage.
 
 5. **Deploy** — Netlify/Render front-end, Railway for back-end.
 
+## Quick note for backend developer
+Here is how to get the db
+```bash
+cd backend
+npm i sqlite3 csv-parse
+node scripts/ingest-tracks.js
+```
+Then you should see .db files in `backend\sql`
+
 Feel free to open issues or PRs—everything is work-in-progress!

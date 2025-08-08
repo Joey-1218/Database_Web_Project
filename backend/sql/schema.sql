@@ -92,3 +92,10 @@ CREATE INDEX IF NOT EXISTS idx_tracks_album   ON tracks(album_id);
 CREATE INDEX IF NOT EXISTS idx_albums_name    ON albums(album_name);
 CREATE INDEX IF NOT EXISTS idx_albums_artist  ON albums(primary_artist);
 CREATE INDEX IF NOT EXISTS idx_ta_artist      ON track_artists(artist_id);
+
+-- Semantic views (aliases with nicer names)
+CREATE VIEW IF NOT EXISTS perform (track_id, artist_id) AS
+  SELECT track_id, artist_id FROM track_artists;
+
+CREATE VIEW IF NOT EXISTS appear_in (playlist_id, track_id) AS
+  SELECT playlist_id, track_id FROM seed_playlist_tracks;
