@@ -80,7 +80,7 @@ Here is how to get the db
 ```bash
 cd backend
 npm i sqlite3 csv-parse
-node scripts/ingest-tracks.js
+node script/ingest-tracks.js
 ```
 Then you should see .db files in `backend/sql`
 
