@@ -82,6 +82,6 @@ cd backend
 npm i sqlite3 csv-parse
 node scripts/ingest-tracks.js
 ```
-Then you should see .db files in `backend\sql`
+Then you should see .db files in `backend/sql`
 
 Feel free to open issues or PRs—everything is work-in-progress!
