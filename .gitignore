@@ -23,10 +23,13 @@ backend/dist/
 *.local
 !.env.example
 
-# SQLite / local DB files
-backend/sql/*.db
+# SQLite artifacts
+backend/sql/*.db*
 backend/sql/*.sqlite*
-*.sqlite3
+backend/sql/spotify.db
+backend/sql/spotify.db-journal
+backend/sql/spotify.db-shm
+backend/sql/spotify.db-wal
 
 # Editor directories and files
 .vscode/*
