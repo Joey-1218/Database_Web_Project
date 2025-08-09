@@ -1,17 +1,6 @@
 // Usage:
 //   node scripts/ingest-tracks.js
-//   node scripts/ingest-tracks.js /absolute/or/relative/path/to/spotify_songs.csv
-//
-// What it does (idempotent):
-// - Applies backend/sql/schema.sql
-// - Loads artists, albums, tracks from CSV (deduped & upserted)
-// - Loads dataset playlists into seed_playlists + seed_playlist_tracks
-//
-// Safety:
-// - Keeps higher track_popularity across duplicates
-// - Never overwrites existing non-null values with nulls
-// - Skips broken rows missing essential IDs
-// - Works in ESM projects ("type": "module")
+//   node scripts/ingest-tracks.js /path/to/spotify_songs.csv
 
 import fs from 'fs';
 import fsp from 'fs/promises';
@@ -35,7 +24,7 @@ const tryPaths = [
   path.resolve(backendDir, '..', 'spotify_songs.csv'),
 ].filter(Boolean);
 
-const csvPath = tryPaths.find(p => fs.existsSync(p));
+const csvPath = tryPaths.find(p => p && fs.existsSync(p));
 if (!csvPath) {
   console.error('Could not find spotify_songs.csv. Pass a path or place it in backend/data/ or repo root.');
   process.exit(1);
@@ -105,17 +94,16 @@ function toFloat(x) {
   `);
   const selArtist = `SELECT artist_id FROM artists WHERE artist_name = ?;`;
 
-  // Album: never clobber good data with NULL; keep existing primary_artist if set.
+  // Album upsert (no primary_artist now)
   const insAlbum = await prepare(db, `
-    INSERT INTO albums(album_id, album_name, release_date, primary_artist)
-    VALUES (?,?,?,?)
+    INSERT INTO albums(album_id, album_name, release_date)
+    VALUES (?,?,?)
     ON CONFLICT(album_id) DO UPDATE SET
-      album_name     = COALESCE(excluded.album_name, albums.album_name),
-      release_date   = COALESCE(excluded.release_date, albums.release_date),
-      primary_artist = COALESCE(albums.primary_artist, excluded.primary_artist);
+      album_name   = COALESCE(excluded.album_name, albums.album_name),
+      release_date = COALESCE(excluded.release_date, albums.release_date);
   `);
 
-  // Track: keep higher popularity; never overwrite non-null with null; prefer stable album_id.
+  // Track upsert (unchanged logic)
   const insTrack = await prepare(db, `
     INSERT INTO tracks(
       track_id, track_name, track_popularity, album_id,
@@ -146,23 +134,31 @@ function toFloat(x) {
       duration_ms      = COALESCE(excluded.duration_ms,      tracks.duration_ms);
   `);
 
-  const insTA = await prepare(db, `
+  const insTrackArtist = await prepare(db, `
     INSERT INTO track_artists(track_id, artist_id)
     VALUES(?,?)
     ON CONFLICT(track_id, artist_id) DO NOTHING;
   `);
 
-  const insSeedPl = await prepare(db, `
-    INSERT INTO seed_playlists(playlist_id, playlist_name, playlist_genre, playlist_subgenre)
-    VALUES(?,?,?,?)
-    ON CONFLICT(playlist_id) DO UPDATE SET
-      playlist_name     = COALESCE(excluded.playlist_name,    seed_playlists.playlist_name),
-      playlist_genre    = COALESCE(excluded.playlist_genre,   seed_playlists.playlist_genre),
-      playlist_subgenre = COALESCE(excluded.playlist_subgenre,seed_playlists.playlist_subgenre);
+  // NEW: album ↔ artist bridge
+  const insAlbumArtist = await prepare(db, `
+    INSERT INTO album_artists(album_id, artist_id)
+    VALUES(?,?)
+    ON CONFLICT(album_id, artist_id) DO NOTHING;
   `);
 
-  const insSeedPlTrack = await prepare(db, `
-    INSERT INTO seed_playlist_tracks(playlist_id, track_id)
+  // Unified playlists
+  const insPlaylist = await prepare(db, `
+    INSERT INTO playlists(playlist_id, playlist_name, playlist_genre, playlist_subgenre)
+    VALUES(?,?,?,?)
+    ON CONFLICT(playlist_id) DO UPDATE SET
+      playlist_name     = COALESCE(excluded.playlist_name,     playlists.playlist_name),
+      playlist_genre    = COALESCE(excluded.playlist_genre,    playlists.playlist_genre),
+      playlist_subgenre = COALESCE(excluded.playlist_subgenre, playlists.playlist_subgenre);
+  `);
+
+  const insPlaylistTrack = await prepare(db, `
+    INSERT INTO playlist_tracks(playlist_id, track_id)
     VALUES(?,?)
     ON CONFLICT(playlist_id, track_id) DO NOTHING;
   `);
@@ -174,7 +170,7 @@ function toFloat(x) {
   await exec(db, 'BEGIN IMMEDIATE;');
 
   for await (const r of parser) {
-    // Exact CSV columns:
+    // Essential CSV columns:
     // track_id, track_name, track_artist, track_popularity,
     // track_album_id, track_album_name, track_album_release_date,
     // playlist_name, playlist_id, playlist_genre, playlist_subgenre,
@@ -190,35 +186,19 @@ function toFloat(x) {
     const release_date = ((r.track_album_release_date || '').trim()) || null;
 
     if (!track_id || !track_name || !album_id) {
-      // skip rows missing essential IDs
-      continue;
+      continue; // skip broken row
     }
 
-    // Artists: split by comma/semicolon
+    // Parse artists (comma/semicolon separated)
     const artistNames = (r.track_artist || '')
       .split(/[;,]/)
       .map(s => s.trim())
       .filter(Boolean);
 
-    const primaryArtistName = artistNames[0] || null;
+    // Upsert album
+    await runStmt(insAlbum, [album_id, album_name || '(Unknown Album)', release_date]);
 
-    // Upsert primary artist
-    let primaryArtistId = null;
-    if (primaryArtistName) {
-      await runStmt(insArtist, [primaryArtistName]);
-      const row = await getRow(db, selArtist, [primaryArtistName]);
-      primaryArtistId = row ? row.artist_id : null;
-    }
-
-    // Upsert album (dataset's album_id is the PK)
-    await runStmt(insAlbum, [
-      album_id,
-      album_name || '(Unknown Album)',
-      release_date,
-      primaryArtistId
-    ]);
-
-    // Upsert track with robust conflict rules
+    // Upsert track
     await runStmt(insTrack, [
       track_id, track_name, track_popularity, album_id,
       toFloat(r.danceability), toFloat(r.energy), toInt(r.key), toFloat(r.loudness), toInt(r.mode),
@@ -226,25 +206,29 @@ function toFloat(x) {
       toFloat(r.valence), toFloat(r.tempo), toInt(r.duration_ms)
     ]);
 
-    // Upsert all contributing artists + link to track
+    // For every contributing artist:
+    //  - upsert artist
+    //  - link track↔artist
+    //  - link album↔artist (NEW)
     for (const name of artistNames) {
       await runStmt(insArtist, [name]);
       const a = await getRow(db, selArtist, [name]);
       if (a?.artist_id) {
-        await runStmt(insTA, [track_id, a.artist_id]);
+        await runStmt(insTrackArtist, [track_id, a.artist_id]);
+        await runStmt(insAlbumArtist, [album_id, a.artist_id]); // NEW: album M:N
       }
     }
 
-    // Seed playlists linkage
+    // Unified playlists
     const pid = (r.playlist_id || '').trim();
     if (pid) {
-      await runStmt(insSeedPl, [
+      await runStmt(insPlaylist, [
         pid,
         (r.playlist_name || '').trim() || '(Unknown Playlist)',
         (r.playlist_genre || '').trim() || null,
         (r.playlist_subgenre || '').trim() || null
       ]);
-      await runStmt(insSeedPlTrack, [pid, track_id]);
+      await runStmt(insPlaylistTrack, [pid, track_id]);
     }
 
     if (++n % 2000 === 0) {
@@ -255,7 +239,9 @@ function toFloat(x) {
   await exec(db, 'COMMIT;');
 
   // finalize prepared statements
-  for (const stmt of [insArtist, insAlbum, insTrack, insTA, insSeedPl, insSeedPlTrack]) {
+  for (const stmt of [
+    insArtist, insAlbum, insTrack, insTrackArtist, insAlbumArtist, insPlaylist, insPlaylistTrack
+  ]) {
     try { stmt.finalize(); } catch {}
   }
 

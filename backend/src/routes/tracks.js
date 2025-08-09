@@ -5,8 +5,8 @@ import { all, get } from '../db.js';
 const router = express.Router();
 
 // small helpers
-function clampInt(v, { def, min, max }) {
-  const n = Number.parseInt(v ?? def, 10);
+function clampInt(value, { def, min, max }) {
+  const n = Number.parseInt(value ?? def, 10);
   if (!Number.isFinite(n)) return def;
   return Math.max(min, Math.min(max, n));
 }
@@ -22,7 +22,7 @@ function clampInt(v, { def, min, max }) {
 router.get('/', async (req, res, next) => {
   try {
     const limit  = clampInt(req.query.limit,  { def: 20, min: 1,  max: 100 });
-    const offset = clampInt(req.query.offset, { def: 0,  min: 0,  max: 1_000_000 });
+    const offset = clampInt(req.query.offset, { def: 0,  min: 0,  max: 28356 });
 
     const q = (req.query.q ?? '').trim();
     const qLike = `%${q}%`;
@@ -33,6 +33,7 @@ router.get('/', async (req, res, next) => {
       LEFT JOIN perform p  ON p.track_id  = t.track_id
       LEFT JOIN artists a  ON a.artist_id = p.artist_id
     `;
+    //JOIN playlist_tracks in the future
 
     const where = q
       ? `WHERE t.track_name LIKE ? COLLATE NOCASE

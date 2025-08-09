@@ -1,4 +1,3 @@
-// backend/src/server.js
 import express from 'express';
 import cors from 'cors';
 
@@ -16,7 +15,7 @@ app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
 // Quick healthcheck
-app.get('/health', (req, res) => res.json({ ok: true }));
+// app.get('/health', (req, res) => res.json({ ok: true }));
 
 // Mount API routes
 app.use('/api/tracks', tracksRouter);
