@@ -48,6 +48,7 @@ git clone https://github.com/CS571-SU25/p39.git
 
 # 2. Install deps
 npm install            # or yarn / pnpm
+npm install axios
 
 # 3. Run dev server
 npm run dev            # Vite → http://localhost:5173/
