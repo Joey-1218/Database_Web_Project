@@ -2,7 +2,8 @@ import express from 'express';
 import cors from 'cors';
 
 // Routers
-import tracksRouter from './routes/tracks.js';        // you created this
+import tracksRouter from './routes/tracks.js';        
+import albumsRouter from './routes/albums.js';        
 // import playlistsRouter from './routes/playlists.js' // optional, if you have it
 
 // Error middleware (optional file you already have)
@@ -19,6 +20,7 @@ app.use(express.json());
 
 // Mount API routes
 app.use('/api/tracks', tracksRouter);
+app.use('/api/albums', albumsRouter);
 // app.use('/api/playlists', playlistsRouter); // uncomment if present
 
 // Centralized error handler (keeps route code clean)
