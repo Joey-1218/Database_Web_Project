@@ -2,16 +2,16 @@ import { Router } from "express";
 import crypto from "crypto";
 
 export default function build(db) {
-  const r = Router();
+  const router = Router();
 
-  r.get("/", async (req, res, next) => {
+  router.get("/", async (req, res, next) => {
     try {
-      const rows = await db.all("SELECT * FROM playlists");
+      const rows = await db.all("SELECT * FROM playlists LIMIT 5;");
       res.json(rows);
     } catch (err) { next(err); }
   });
 
-  r.post("/", async (req, res, next) => {
+  router.post("/", async (req, res, next) => {
     try {
       const { name, desc } = req.body;
       const id = crypto.randomUUID();
@@ -23,7 +23,7 @@ export default function build(db) {
     } catch (err) { next(err); }
   });
 
-  r.post("/:plId/tracks/:trackId", async (req, res, next) => {
+  router.post("/:plId/tracks/:trackId", async (req, res, next) => {
     const { plId, trackId } = req.params;
     try {
       await db.run(
@@ -34,7 +34,7 @@ export default function build(db) {
     } catch (err) { next(err); }
   });
 
-  r.delete("/:plId/tracks/:trackId", async (req, res, next) => {
+  router.delete("/:plId/tracks/:trackId", async (req, res, next) => {
     const { plId, trackId } = req.params;
     try {
       await db.run(
@@ -45,5 +45,5 @@ export default function build(db) {
     } catch (err) { next(err); }
   });
 
-  return r;
+  return router;
 }

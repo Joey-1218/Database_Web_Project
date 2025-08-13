@@ -24,8 +24,11 @@ router.get('/', async (req, res, next) => {
     const limit  = clampInt(req.query.limit,  { def: 20, min: 1,  max: 100 });
     const offset = clampInt(req.query.offset, { def: 0,  min: 0,  max: 28356 });
 
-    const q = (req.query.q ?? '').trim();
-    const qLike = `%${q}%`;
+    const track  = (req.query.track  ?? '').trim();
+    const artist = (req.query.artist ?? '').trim();
+    
+    // const trackLike = `%${track}%`;
+    // const artistLike = `%${artist}%`
 
     const FROM = `
       FROM tracks t
@@ -35,13 +38,19 @@ router.get('/', async (req, res, next) => {
     `;
     //JOIN playlist_tracks in the future
 
-    const where = q
-      ? `WHERE t.track_name LIKE ? COLLATE NOCASE
-             OR a.artist_name LIKE ? COLLATE NOCASE
-             OR al.album_name  LIKE ? COLLATE NOCASE`
-      : '';
+    const conds = [];
+    const params = [];
 
-    const params = q ? [qLike, qLike, qLike] : [];
+    if (track) {
+      conds.push('t.track_name LIKE ? COLLATE NOCASE');
+      params.push('%${track}%');
+    }
+    if (artist) {
+      conds.push('a.artist_name LIKE ? COLLATE NOCASE');
+      params.push(`%${artist}%`);
+    }
+
+    const where = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
 
     // total
     const totalRow = await get(

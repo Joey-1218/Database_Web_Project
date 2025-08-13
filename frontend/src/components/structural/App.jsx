@@ -12,8 +12,8 @@ import SongBrowser from '../pages/SongBrowser';
 import NoMatchPage from "../pages/NoMatchPage";
 import SpotifyLayout from "./SpotifyLayout";
 
-import TracksData from "../data/tracks.json";
-import TracksContext from "../contexts/TracksContext";
+// This should be replaced with fetch
+import {TracksProvider} from "../contexts/TracksContext";
 import ThemeProvider from "../contexts/ThemeContext";
 import {PlaylistProvider} from "../contexts/PlaylistContext";
 
@@ -21,11 +21,9 @@ function App() {
 
   // const [favorites, setFavorites] = React.useState([]);
 
-  const [allTracks, setTracks] = useState(TracksData);
-
   return (
     <PlaylistProvider>
-      <TracksContext.Provider value={{ allTracks, setTracks }}>
+      <TracksProvider>
         <ThemeProvider>
           <HashRouter>
             <Routes>
@@ -44,7 +42,7 @@ function App() {
             </Routes>
           </HashRouter>
         </ThemeProvider>
-      </TracksContext.Provider>
+      </TracksProvider>
     </PlaylistProvider>
   );
 }

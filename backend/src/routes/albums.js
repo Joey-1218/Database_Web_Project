@@ -74,34 +74,4 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-/**
- * GET /api/tracks/:id
- * Returns one track row plus aggregated artist names and album info.
- */
-router.get('/:id', async (req, res, next) => {
-    try {
-        const row = await get(
-            `
-      SELECT
-        t.*,
-        al.album_name,
-        al.release_date,
-        GROUP_CONCAT(DISTINCT a.artist_name) AS artist_names
-      FROM tracks t
-      LEFT JOIN albums  al ON al.album_id = t.album_id
-      LEFT JOIN perform p  ON p.track_id  = t.track_id
-      LEFT JOIN artists a  ON a.artist_id = p.artist_id
-      WHERE t.track_id = ?
-      GROUP BY t.track_id;
-      `,
-            [req.params.id]
-        );
-
-        if (!row) return res.status(404).json({ error: 'Track not found' });
-        res.json(row);
-    } catch (err) {
-        next(err);
-    }
-});
-
 export default router;

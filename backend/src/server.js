@@ -21,7 +21,7 @@ app.use(express.json());
 // Mount API routes
 app.use('/api/tracks', tracksRouter);
 app.use('/api/albums', albumsRouter);
-// app.use('/api/playlists', playlistsRouter); // uncomment if present
+// app.use('/api/playlists', playlistsRouter);
 
 // Centralized error handler (keeps route code clean)
 app.use(errorHandler);

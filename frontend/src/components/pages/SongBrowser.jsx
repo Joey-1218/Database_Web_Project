@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Card, CardBody, CardTitle, Col, Form, Row, Pagination } from "react-bootstrap";
+import { Col, Row, Pagination } from "react-bootstrap";
 import TracksContext from "../contexts/TracksContext";
 import { ThemeContext } from "../contexts/ThemeContext";
 import TrackCard from "./content/TrackCard";
@@ -14,17 +14,11 @@ export default function SongBrowser() {
     const trackArtistInputRef = useRef();
     const albumNameInputRef = useRef();
 
-    const { allTracks } = useContext(TracksContext);
-    // JUST PUT AN EXAMPLE HERE, WORK ON THIS LATER.
-    useEffect(() => {
-        api.get("/tracks?limit=200").then(res => setTracks(res.data));
-    }, []);
+    //data comes from context
+    const { items, total, loading, error, loadTracks } = useContext(TracksContext);
 
+    //favrioute
     const [favTrackIds, setFavTrackIds] = useStorage("favTrackIds", []);
-
-    const [filteredTracks, setFilteredTracks] = useState(allTracks);
-    useEffect(() => setFilteredTracks(allTracks), [allTracks]);
-
     const toggleFav = (trackId) => {
         setFavTrackIds((prev) =>
             prev.includes(trackId)
@@ -33,46 +27,60 @@ export default function SongBrowser() {
         );
     };
 
-    const onSearchTrack = (e) => {
-        e.preventDefault();
-        const n = trackNameInputRef.current.value.trim().toLowerCase();
-        const a = trackArtistInputRef.current.value.trim().toLowerCase();
-
-        setFilteredTracks(
-            allTracks.filter(t => {
-                const nameMatch = !n || t.track_name.toLowerCase().includes(n);
-                const artistMatch = !a || t.track_artist.toLowerCase().includes(a);
-                return nameMatch && artistMatch;
-            })
-        );
-    };
-
-    const onReset = () => {
-        // clear inputs
-        if (trackNameInputRef.current) trackNameInputRef.current.value = "";
-        if (trackArtistInputRef.current) trackArtistInputRef.current.value = "";
-
-        // show all tracks again and go to page 1
-        setFilteredTracks(allTracks);
-        setPage(1);
-    };
-
-    const onSearchAlbum = (e) => {
-        e.preventDefault();
-        // read refs and run search...
-    };
-
+    // Pagination
     const [page, setPage] = useState(1);
+    const limit = PAGE_SIZE * 5;
+    const offset = 0;
+    // TODO: This is hardcoded, update later!
+    const totalPages = 5;
 
-    // Whenever filteredTracks changes (e.g., first load or after a new search),
-    // go back to the first page.
-    useEffect(() => setPage(1), [filteredTracks]);
+    // Initial load (empty search)
+    useEffect(() => {
+        loadTracks({ track: "", artist: "", limit, offset: 0 });
+        setPage(1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // run once on mount
 
-    const totalPages = Math.max(1, Math.ceil(filteredTracks.length / PAGE_SIZE));
+    // When page changes, refetch using current input values
+    useEffect(() => {
+        // Read current (uncontrolled) values
+        const track = (trackNameInputRef.current?.value || "").trim();
+        const artist = (trackArtistInputRef.current?.value || "").trim();
+
+        loadTracks({ track, artist, limit, offset });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, limit, offset]);
+
     const pageSlice = useMemo(() => {
         const startIndex = (page - 1) * PAGE_SIZE;
-        return filteredTracks.slice(startIndex, startIndex + PAGE_SIZE)
-    }, [filteredTracks, page]);
+        return items.slice(startIndex, startIndex + PAGE_SIZE)
+    }, [items, page]);
+
+    // Search submit using uncontrolled refs
+    const onSearchTrack = (e) => {
+        e.preventDefault();
+        const track = (trackNameInputRef.current?.value || "").trim();
+        const artist = (trackArtistInputRef.current?.value || "").trim();
+
+        setPage(1); // go back to first page for a new search
+        // Fetch page 1 (offset 0) with current inputs
+        loadTracks({ track, artist, limit, offset: 0 });
+    };
+
+    // Optional album search handler stub (not used for /api/tracks)
+    const onSearchAlbum = (e) => {
+        e.preventDefault();
+        // This form likely belongs on your Albums page/endpoint.
+    };
+
+    // Reset: clear inputs, go to page 1, load empty search
+    const onReset = () => {
+        if (trackNameInputRef.current) trackNameInputRef.current.value = "";
+        if (trackArtistInputRef.current) trackArtistInputRef.current.value = "";
+        if (albumNameInputRef.current) albumNameInputRef.current.value = "";
+        setPage(1);
+        loadTracks({ track: "", artist: "", limit, offset: 0 });
+    };
 
     const handlePageClick = p => setPage(p);
     const handlePrev = () => setPage(p => Math.max(1, p - 1));
@@ -94,22 +102,26 @@ export default function SongBrowser() {
                     onSearchAlbum={onSearchAlbum}
                 />
                 <Col xs={10} sm={10} md={9} lg={9}>
-                    {filteredTracks.length === 0 ?
-                        (
-                            <p>Loading</p>
-                        ) : (
-                            <Row>
-                                {pageSlice.map(track => (
-                                    <Col key={track.track_id} xs={10} sm={6} md={4} lg={3} className="mb-3">
-                                        <TrackCard
-                                            track={track}
-                                            isFav={favTrackIds.includes(track.track_id)}
-                                            onFav={() => toggleFav(track.track_id)}
-                                        />
-                                    </Col>
-                                ))}
-                            </Row>
-                        )}
+                    {loading && <p>Loading…</p>}
+                    {error && <p style={{ color: "red" }}>Error: {String(error.message || error)}</p>}
+
+                    {!loading && !error && items.length === 0 && (
+                        <p>LOADING...</p>
+                    )}
+
+                    {!loading && !error && items.length > 0 && (
+                        <Row>
+                            {pageSlice.map((track) => (
+                                <Col key={track.track_id} xs={10} sm={6} md={4} lg={3} className="mb-3">
+                                    <TrackCard
+                                        track={track}
+                                        isFav={favTrackIds.includes(track.track_id)}
+                                        onFav={() => toggleFav(track.track_id)}
+                                    />
+                                </Col>
+                            ))}
+                        </Row>
+                    )}
                 </Col>
             </Row>
 
