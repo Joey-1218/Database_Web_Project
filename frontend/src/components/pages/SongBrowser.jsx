@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Col, Row, Pagination } from "react-bootstrap";
+import { Col, Row, Button, ButtonGroup } from "react-bootstrap";
 import TracksContext from "../contexts/TracksContext";
 import { ThemeContext } from "../contexts/ThemeContext";
 import TrackCard from "./content/TrackCard";
 import useStorage from "../hooks/useStorage";
 import SearchSidebar from "../SearchSideBar";
 import api from "../../api";
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 36;
 
 
 export default function SongBrowser() {
@@ -28,16 +28,16 @@ export default function SongBrowser() {
     };
 
     // Pagination
-    const [page, setPage] = useState(1);
-    const limit = PAGE_SIZE * 5;
-    const offset = 0;
+    // const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(PAGE_SIZE);
+    const [offset, setOffset] = useState(0);
     // TODO: This is hardcoded, update later!
-    const totalPages = 5;
+    // const totalPages = 5;
 
     // Initial load (empty search)
     useEffect(() => {
-        loadTracks({ track: "", artist: "", limit, offset: 0 });
-        setPage(1);
+        loadTracks({ track: "", artist: "", limit, offset });
+        // setPage(1);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // run once on mount
 
@@ -49,12 +49,11 @@ export default function SongBrowser() {
 
         loadTracks({ track, artist, limit, offset });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, limit, offset]);
+    }, [limit, offset]);
 
-    const pageSlice = useMemo(() => {
-        const startIndex = (page - 1) * PAGE_SIZE;
-        return items.slice(startIndex, startIndex + PAGE_SIZE)
-    }, [items, page]);
+    const chunk = useMemo(() => {
+        return items.slice(0, offset + limit)
+    }, [items, offset]);
 
     // Search submit using uncontrolled refs
     const onSearchTrack = (e) => {
@@ -62,7 +61,7 @@ export default function SongBrowser() {
         const track = (trackNameInputRef.current?.value || "").trim();
         const artist = (trackArtistInputRef.current?.value || "").trim();
 
-        setPage(1); // go back to first page for a new search
+        // setPage(1); // go back to first page for a new search
         // Fetch page 1 (offset 0) with current inputs
         loadTracks({ track, artist, limit, offset: 0 });
     };
@@ -78,13 +77,23 @@ export default function SongBrowser() {
         if (trackNameInputRef.current) trackNameInputRef.current.value = "";
         if (trackArtistInputRef.current) trackArtistInputRef.current.value = "";
         if (albumNameInputRef.current) albumNameInputRef.current.value = "";
-        setPage(1);
+        // setPage(1);
         loadTracks({ track: "", artist: "", limit, offset: 0 });
     };
 
-    const handlePageClick = p => setPage(p);
-    const handlePrev = () => setPage(p => Math.max(1, p - 1));
-    const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
+    // const handleGoBack = () => {
+    //     // setOffset(prev => prev - PAGE_SIZE);
+    //     setLimit(prev => prev - PAGE_SIZE)
+    // }
+
+    const handleLoadMore = () => {
+        // setOffset(prev => prev + PAGE_SIZE);
+        setLimit(prev => prev + PAGE_SIZE)
+    }
+
+    // const handlePageClick = p => setPage(p);
+    // const handlePrev = () => setPage(p => Math.max(1, p - 1));
+    // const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
 
     const { theme } = useContext(ThemeContext);
 
@@ -111,7 +120,7 @@ export default function SongBrowser() {
 
                     {!loading && !error && items.length > 0 && (
                         <Row>
-                            {pageSlice.map((track) => (
+                            {chunk.map((track) => (
                                 <Col key={track.track_id} xs={10} sm={6} md={4} lg={3} className="mb-3">
                                     <TrackCard
                                         track={track}
@@ -120,12 +129,13 @@ export default function SongBrowser() {
                                     />
                                 </Col>
                             ))}
+                            <Button onClick={handleLoadMore}>Load More</Button>
                         </Row>
                     )}
                 </Col>
             </Row>
 
-            <Pagination className="fixed-bottom justify-content-center">
+            {/* <Pagination className="fixed-bottom justify-content-center">
                 <Pagination.Prev
                     disabled={page === 1}
                     onClick={handlePrev}
@@ -152,7 +162,7 @@ export default function SongBrowser() {
                 >
                     Next
                 </Pagination.Next>
-            </Pagination>
+            </Pagination> */}
 
         </section>
     )
