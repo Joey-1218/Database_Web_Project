@@ -21,12 +21,12 @@ function clampInt(value, { def, min, max }) {
  */
 router.get('/', async (req, res, next) => {
   try {
-    const limit  = clampInt(req.query.limit,  { def: 20, min: 1,  max: 28356 });
-    const offset = clampInt(req.query.offset, { def: 0,  min: 0,  max: 28356 });
+    const limit = clampInt(req.query.limit, { def: 20, min: 1, max: 28356 });
+    const offset = clampInt(req.query.offset, { def: 0, min: 0, max: 28356 });
 
-    const track  = (req.query.track  ?? '').trim();
+    const track = (req.query.track ?? '').trim();
     const artist = (req.query.artist ?? '').trim();
-    
+
     // const trackLike = `%${track}%`;
     // const artistLike = `%${artist}%`
 
@@ -104,7 +104,9 @@ router.get('/:id', async (req, res, next) => {
         t.*,
         al.album_name,
         al.release_date,
-        GROUP_CONCAT(DISTINCT a.artist_name) AS artist_names
+        json_group_array(
+          json_object('artist_id', a.artist_id, 'artist_name', a.artist_name)
+        ) AS artists
       FROM tracks t
       LEFT JOIN albums  al ON al.album_id = t.album_id
       LEFT JOIN perform p  ON p.track_id  = t.track_id

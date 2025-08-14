@@ -9,7 +9,7 @@ export default function TrackCard({ track }) {
   // This should be modified later...
   // const { playlists, addTrackTo } = useContext(PlaylistContext);
 
-  const to = `/tracks/${track.track_id}`;
+  const to = `/songs/${track.track_id}`;
   return (
     <Link to={to} className="track-tile text-reset text-decoration-none" aria-label={`Open ${track.track_name}`}>
       <div className="tile-text">

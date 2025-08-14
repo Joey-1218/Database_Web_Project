@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react"
 import { Button, Col, Row } from "react-bootstrap";
 import AlbumsContext from "../contexts/AlbumsContext";
-import AlbumSearchSidebar from "../AlbumSearchSideBar";
+import AlbumSearchSidebar from "./content/AlbumSearchSideBar";
 import { ThemeContext } from "../contexts/ThemeContext";
 const PAGE_SIZE = 36;
 
