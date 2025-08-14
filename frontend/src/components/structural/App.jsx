@@ -13,9 +13,10 @@ import NoMatchPage from "../pages/NoMatchPage";
 import SpotifyLayout from "./SpotifyLayout";
 
 // This should be replaced with fetch
-import {TracksProvider} from "../contexts/TracksContext";
+import { TracksProvider } from "../contexts/TracksContext";
 import ThemeProvider from "../contexts/ThemeContext";
-import {PlaylistProvider} from "../contexts/PlaylistContext";
+import { PlaylistProvider } from "../contexts/PlaylistContext";
+import { AlbumsProvider } from "../contexts/AlbumsContext";
 
 function App() {
 
@@ -24,24 +25,26 @@ function App() {
   return (
     <PlaylistProvider>
       <TracksProvider>
-        <ThemeProvider>
-          <HashRouter>
-            <Routes>
-              <Route path="/" element={<SpotifyLayout />}>
-                <Route index element={<HomePage />} />
-                <Route path="login" element={<LoginPage />}></Route>
-                <Route path="register" element={<RegisterPage />}></Route>
-                <Route path="logout" element={<LogoutPage />}></Route>
+        <AlbumsProvider>
+          <ThemeProvider>
+            <HashRouter>
+              <Routes>
+                <Route path="/" element={<SpotifyLayout />}>
+                  <Route index element={<HomePage />} />
+                  <Route path="login" element={<LoginPage />}></Route>
+                  <Route path="register" element={<RegisterPage />}></Route>
+                  <Route path="logout" element={<LogoutPage />}></Route>
 
-                <Route path="library/songs" element={<SongBrowser />}></Route>
-                <Route path="library/albums" element={<AlbumsPage />}></Route>
-                <Route path="library/playlists" element={<PlaylistPage />}></Route>
-                <Route path="library/favsongs" element={<FavSong />}></Route>
-                <Route path="*" element={<NoMatchPage />} />
-              </Route>
-            </Routes>
-          </HashRouter>
-        </ThemeProvider>
+                  <Route path="library/songs" element={<SongBrowser />}></Route>
+                  <Route path="library/albums" element={<AlbumsPage />}></Route>
+                  <Route path="library/playlists" element={<PlaylistPage />}></Route>
+                  <Route path="library/favsongs" element={<FavSong />}></Route>
+                  <Route path="*" element={<NoMatchPage />} />
+                </Route>
+              </Routes>
+            </HashRouter>
+          </ThemeProvider>
+        </AlbumsProvider>
       </TracksProvider>
     </PlaylistProvider>
   );

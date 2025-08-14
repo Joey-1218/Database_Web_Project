@@ -5,10 +5,8 @@ export default function SearchSidebar({
     theme,
     trackNameInputRef,
     trackArtistInputRef,
-    albumNameInputRef,
     onSearchTrack,  // (e) => void
     onReset,
-    onSearchAlbum,  // (e) => void
     colProps = { xs: 2, sm: 2, md: 3, lg: 3 },
     total,
 }) {
@@ -42,27 +40,6 @@ export default function SearchSidebar({
                                 </Button>
                             </div>
 
-                        </Form>
-                    </Card.Body>
-                </Card>
-            </div>
-
-            <div>
-                <Card>
-                    <Card.Title className="mx-auto mt-2">Find an album</Card.Title>
-                    <Card.Body>
-                        <Form onSubmit={onSearchAlbum}>
-                            <Form.Group controlId="searchAlbumName" className="mb-3">
-                                <Form.Label>Album Name</Form.Label>
-                                <Form.Control placeholder="Coming soon" disabled ref={albumNameInputRef} />
-                            </Form.Group>
-                            <Button
-                                variant={theme === "light" ? "dark" : "light"}
-                                type="submit"
-                                disabled
-                            >
-                                Search
-                            </Button>
                         </Form>
                     </Card.Body>
                 </Card>

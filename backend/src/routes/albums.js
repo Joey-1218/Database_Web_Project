@@ -14,7 +14,8 @@ function clampInt(value, { def, min, max }) {
 /**
  * GET /api/albums
  * Query:
- *   q?      - search (matches album_name, artist_name; case-insensitive)
+ *   album?      - search (matches album_name; case-insensitive)
+ *   artist?     - search (matches artist_name; case-insensitive)
  *   limit?  - default 20, max 100
  *   offset? - default 0
  * Returns: { items, total, limit, offset }
@@ -24,21 +25,28 @@ router.get('/', async (req, res, next) => {
         const limit = clampInt(req.query.limit, { def: 20, min: 1, max: 100 });
         const offset = clampInt(req.query.offset, { def: 0, min: 0, max: 22545 });
 
-        const q = (req.query.q ?? '').trim();
-        const qLike = `%${q}%`;
+        const album = (req.query.album ?? '').trim();
+        const artist = (req.query.artist ?? '').trim();
 
         const FROM = `
-      FROM albums ab
-      LEFT JOIN publish p ON p.album_id = ab.album_id
-      LEFT JOIN artists at ON p.artist_id = at.artist_id
-    `;
+            FROM albums ab
+            LEFT JOIN publish p ON p.album_id = ab.album_id
+            LEFT JOIN artists at ON p.artist_id = at.artist_id
+        `;
 
-        const where = q
-            ? `WHERE ab.album_name LIKE ? COLLATE NOCASE
-             OR at.artist_name LIKE ? COLLATE NOCASE`
-            : '';
+        const conds = [];
+        const params = [];
 
-        const params = q ? [qLike, qLike] : [];
+        if (album) {
+            conds.push('ab.album_name LIKE ? COLLATE NOCASE');
+            params.push(`%${album}%`);
+        }
+        if (artist) {
+            conds.push('at.artist_name LIKE ? COLLATE NOCASE');
+            params.push(`%${artist}%`);
+        }
+
+        const where = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
 
         // total
         const totalRow = await get(
