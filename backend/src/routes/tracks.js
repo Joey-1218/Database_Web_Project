@@ -104,11 +104,13 @@ router.get('/:id', async (req, res, next) => {
         t.*,
         al.album_name,
         al.release_date,
-        GROUP_CONCAT(DISTINCT a.artist_name) AS artist_names
+        json_group_array(
+          json_object('artist_id', a.artist_id, 'artist_name', a.artist_name)
+        ) AS artists
       FROM tracks t
-      LEFT JOIN albums  al ON al.album_id = t.album_id
-      LEFT JOIN perform p  ON p.track_id  = t.track_id
-      LEFT JOIN artists a  ON a.artist_id = p.artist_id
+        LEFT JOIN albums  al ON al.album_id = t.album_id
+        LEFT JOIN perform p  ON p.track_id  = t.track_id
+        LEFT JOIN artists a  ON a.artist_id = p.artist_id
       WHERE t.track_id = ?
       GROUP BY t.track_id;
       `,
