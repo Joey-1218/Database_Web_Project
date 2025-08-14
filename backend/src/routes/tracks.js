@@ -43,7 +43,7 @@ router.get('/', async (req, res, next) => {
 
     if (track) {
       conds.push('t.track_name LIKE ? COLLATE NOCASE');
-      params.push('%${track}%');
+      params.push(`%${track}%`);
     }
     if (artist) {
       conds.push('a.artist_name LIKE ? COLLATE NOCASE');

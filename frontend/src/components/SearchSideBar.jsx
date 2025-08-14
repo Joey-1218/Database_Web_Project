@@ -10,6 +10,7 @@ export default function SearchSidebar({
     onReset,
     onSearchAlbum,  // (e) => void
     colProps = { xs: 2, sm: 2, md: 3, lg: 3 },
+    total,
 }) {
     return (
         <Col {...colProps}>
@@ -65,6 +66,13 @@ export default function SearchSidebar({
                         </Form>
                     </Card.Body>
                 </Card>
+            </div>
+
+            <div className="mx-auto mt-2">
+                {total > 1
+                    ? <p>There are {total} tracks that match your search!</p>
+                    : <p>There is {total} track that matches your search!</p>
+                }
             </div>
         </Col>
     );

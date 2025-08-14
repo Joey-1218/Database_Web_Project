@@ -5,7 +5,6 @@ import { ThemeContext } from "../contexts/ThemeContext";
 import TrackCard from "./content/TrackCard";
 import useStorage from "../hooks/useStorage";
 import SearchSidebar from "../SearchSideBar";
-import api from "../../api";
 const PAGE_SIZE = 36;
 
 
@@ -61,7 +60,6 @@ export default function SongBrowser() {
         const track = (trackNameInputRef.current?.value || "").trim();
         const artist = (trackArtistInputRef.current?.value || "").trim();
 
-        // setPage(1); // go back to first page for a new search
         // Fetch page 1 (offset 0) with current inputs
         loadTracks({ track, artist, limit, offset: 0 });
     };
@@ -81,19 +79,10 @@ export default function SongBrowser() {
         loadTracks({ track: "", artist: "", limit, offset: 0 });
     };
 
-    // const handleGoBack = () => {
-    //     // setOffset(prev => prev - PAGE_SIZE);
-    //     setLimit(prev => prev - PAGE_SIZE)
-    // }
-
     const handleLoadMore = () => {
         // setOffset(prev => prev + PAGE_SIZE);
         setLimit(prev => prev + PAGE_SIZE)
     }
-
-    // const handlePageClick = p => setPage(p);
-    // const handlePrev = () => setPage(p => Math.max(1, p - 1));
-    // const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
 
     const { theme } = useContext(ThemeContext);
 
@@ -109,13 +98,16 @@ export default function SongBrowser() {
                     onSearchTrack={onSearchTrack}
                     onReset={onReset}
                     onSearchAlbum={onSearchAlbum}
+                    total={total}
                 />
+                
                 <Col xs={10} sm={10} md={9} lg={9}>
+                {/* Add animation for loading later */}
                     {loading && <p>Loading…</p>}
                     {error && <p style={{ color: "red" }}>Error: {String(error.message || error)}</p>}
 
                     {!loading && !error && items.length === 0 && (
-                        <p>LOADING...</p>
+                        <p className="">NO RESULT</p>
                     )}
 
                     {!loading && !error && items.length > 0 && (
@@ -134,36 +126,6 @@ export default function SongBrowser() {
                     )}
                 </Col>
             </Row>
-
-            {/* <Pagination className="fixed-bottom justify-content-center">
-                <Pagination.Prev
-                    disabled={page === 1}
-                    onClick={handlePrev}
-                >
-                    Prev
-                </Pagination.Prev>
-
-                {Array.from({ length: totalPages }, (_, idx) => {
-                    const p = idx + 1;
-                    return (
-                        <Pagination.Item
-                            key={p}
-                            active={p === page}
-                            onClick={() => handlePageClick(p)}
-                        >
-                            {p}
-                        </Pagination.Item>
-                    );
-                })}
-
-                <Pagination.Next
-                    disabled={page === totalPages}
-                    onClick={handleNext}
-                >
-                    Next
-                </Pagination.Next>
-            </Pagination> */}
-
         </section>
     )
 }
