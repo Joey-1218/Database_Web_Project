@@ -4,8 +4,8 @@ import TracksContext from "../contexts/TracksContext";
 import { ThemeContext } from "../contexts/ThemeContext";
 import TrackCard from "./content/TrackCard";
 import useStorage from "../hooks/useStorage";
-import TrackSearchSidebar from "../TrackSearchSideBar";
-const PAGE_SIZE = 36;
+import TrackSearchSidebar from "./content/TrackSearchSideBar";
+const PAGE_SIZE = 100;
 
 export default function SongBrowser() {
     const trackNameInputRef = useRef();
@@ -70,6 +70,15 @@ export default function SongBrowser() {
         setLimit(prev => prev + PAGE_SIZE)
     }
 
+    const handleLoadLess = () => {
+        // setOffset(prev => prev + PAGE_SIZE);
+        if (limit >= 2 * PAGE_SIZE) {
+            setLimit(prev => prev - PAGE_SIZE)
+        }
+    }
+
+    const canLoadLess = limit >= 2 * PAGE_SIZE;
+
     const { theme } = useContext(ThemeContext);
 
     return (
@@ -82,11 +91,14 @@ export default function SongBrowser() {
                     trackArtistInputRef={trackArtistInputRef}
                     onSearchTrack={onSearchTrack}
                     onReset={onReset}
+                    onLoadLess={handleLoadLess}
+                    disabled={!canLoadLess}
+                    numDisplayed={chunk.length}
                     total={total}
                 />
-                
+
                 <Col xs={10} sm={10} md={9} lg={9}>
-                {/* Add animation for loading later */}
+                    {/* Add animation for loading later */}
                     {loading && <p>Loading…</p>}
                     {error && <p style={{ color: "red" }}>Error: {String(error.message || error)}</p>}
 
@@ -97,15 +109,19 @@ export default function SongBrowser() {
                     {!loading && !error && items.length > 0 && (
                         <Row>
                             {chunk.map((track) => (
-                                <Col key={track.track_id} xs={10} sm={6} md={4} lg={3} className="mb-3">
+                                <Col key={track.track_id} xs={10} sm={6} md={4} lg={3} className="mb-2">
                                     <TrackCard
                                         track={track}
-                                        isFav={favTrackIds.includes(track.track_id)}
-                                        onFav={() => toggleFav(track.track_id)}
                                     />
                                 </Col>
                             ))}
-                            <Button onClick={handleLoadMore} disabled={total <= limit}>Load More</Button>
+                            <Button
+                                onClick={handleLoadMore}
+                                disabled={total <= limit}
+                                variant={theme === "light" ? "dark" : "light"}
+                            >
+                                Load More
+                            </Button>
                         </Row>
                     )}
                 </Col>
