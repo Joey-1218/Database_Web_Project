@@ -91,8 +91,9 @@ export default function AlbumsPage() {
           {!loading && !error && items.length > 0 && (
             <Row>
               {chunk.map((a) => (
-                <AlbumCard album={a} key={a.album_id} />
-                // <p key={a.album_id}>{a.album_name} by {a.artist_names} is released on {a.release_date}.</p>
+                <Col key={a.album_id} xs={10} sm={6} md={4} lg={3} className="mb-2">
+                  <AlbumCard album={a} key={a.album_id} />
+                </Col>
               ))}
               <Button
                 variant={theme === "light" ? "dark" : "light"}
