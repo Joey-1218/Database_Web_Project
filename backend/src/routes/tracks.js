@@ -27,6 +27,33 @@ router.get('/', async (req, res, next) => {
     const track = (req.query.track ?? '').trim();
     const artist = (req.query.artist ?? '').trim();
 
+    // sorting
+    const sort = (req.query.sort ?? '').toLowerCase(); // e.g. "popularity"
+    const dir  = (req.query.dir ?? 'desc').toLowerCase(); // "asc"|"desc"
+
+    // Whitelist sortable columns
+    const SORTS = {
+      name:         't.track_name',
+      popularity:   't.track_popularity',
+      release:      'al.release_date',
+      album:        'al.album_name',
+      danceability: 't.danceability',
+      energy:       't.energy',
+      key:          't.key',
+      loudness:     't.loudness',
+      mode:         't.mode',
+      speechiness:  't.speechiness',
+      acousticness: 't.acousticness',
+      instrumentalness: 't.instrumentalness',
+      liveness:     't.liveness',
+      valence:      't.valence',
+      tempo:        't.tempo',
+      duration:     't.duration_ms',
+    };
+
+    const sortCol = SORTS[sort];
+    const dirSql = dir === 'asc' ? 'asc' : 'desc';
+
     const FROM = `
       FROM tracks t
       LEFT JOIN albums  al ON al.album_id = t.album_id
@@ -55,6 +82,11 @@ router.get('/', async (req, res, next) => {
       params
     );
 
+    const defaultOrder = `(t.track_popularity IS NULL), t.track_popularity DESC, t.track_name ASC`;
+    const orderBy = sortCol
+    ? `(${sortCol} IS NULL), ${sortCol} ${dirSql},  t.track_name ASC`
+    : defaultOrder;
+
     // page of items
     const items = await all(
       `
@@ -72,7 +104,7 @@ router.get('/', async (req, res, next) => {
       ${FROM}
       ${where}
       GROUP BY t.track_id
-      ORDER BY (t.track_popularity IS NULL), t.track_popularity DESC, t.track_name ASC
+      ORDER BY ${orderBy}
       LIMIT ? OFFSET ?;
       `,
       [...params, limit, offset]
