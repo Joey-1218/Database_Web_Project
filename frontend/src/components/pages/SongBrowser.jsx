@@ -70,14 +70,13 @@ export default function SongBrowser() {
         setLimit(prev => prev + PAGE_SIZE)
     }
 
+    const canLoadLess = limit >= 2 * PAGE_SIZE;
     const handleLoadLess = () => {
         // setOffset(prev => prev + PAGE_SIZE);
-        if (limit >= 2 * PAGE_SIZE) {
+        if (canLoadLess) {
             setLimit(prev => prev - PAGE_SIZE)
         }
     }
-
-    const canLoadLess = limit >= 2 * PAGE_SIZE;
 
     const { theme } = useContext(ThemeContext);
 

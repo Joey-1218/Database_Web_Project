@@ -4,7 +4,7 @@ import AlbumsContext from "../contexts/AlbumsContext";
 import AlbumSearchSidebar from "./content/AlbumSearchSideBar";
 import AlbumCard from "./content/AlbumCard";
 import { ThemeContext } from "../contexts/ThemeContext";
-const PAGE_SIZE = 36;
+const PAGE_SIZE = 100;
 
 export default function AlbumsPage() {
   const albumNameInputRef = useRef();
@@ -53,9 +53,17 @@ export default function AlbumsPage() {
   };
 
   const handleLoadMore = () => {
-        // setOffset(prev => prev + PAGE_SIZE);
-        setLimit(prev => prev + PAGE_SIZE)
+    // setOffset(prev => prev + PAGE_SIZE);
+    setLimit(prev => prev + PAGE_SIZE)
+  }
+
+  const canLoadLess = limit >= 2 * PAGE_SIZE;
+  const handleLoadLess = () => {
+    // setOffset(prev => prev + PAGE_SIZE);
+    if (canLoadLess) {
+      setLimit(prev => prev - PAGE_SIZE)
     }
+  }
 
   return (
     <section>
@@ -68,6 +76,9 @@ export default function AlbumsPage() {
           onSearchAlbum={onSearchAlbum}
           onReset={onReset}
           total={total}
+          numDisplayed={chunk.length}
+          disabled={!canLoadLess}
+          onLoadLess={handleLoadLess}
         />
         <Col xs={10} sm={10} md={9} lg={9}>
           {loading && <p>Loading…</p>}
@@ -80,10 +91,15 @@ export default function AlbumsPage() {
           {!loading && !error && items.length > 0 && (
             <Row>
               {chunk.map((a) => (
-                <AlbumCard album={a} key={a.album_id}/>
+                <AlbumCard album={a} key={a.album_id} />
                 // <p key={a.album_id}>{a.album_name} by {a.artist_names} is released on {a.release_date}.</p>
               ))}
-              <Button onClick={handleLoadMore} disabled={total <= limit}>Load More</Button>
+              <Button
+                variant={theme === "light" ? "dark" : "light"}
+                onClick={handleLoadMore}
+                disabled={total <= limit}
+              >
+                Load More</Button>
             </Row>
           )}
         </Col>

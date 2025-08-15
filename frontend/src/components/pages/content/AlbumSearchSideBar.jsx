@@ -8,6 +8,9 @@ export default function SearchSidebar({
     onSearchAlbum,  // (e) => void
     colProps = { xs: 2, sm: 2, md: 3, lg: 3 },
     total,
+    numDisplayed,
+    disabled,
+    onLoadLess,
 }) {
     return (
         <Col {...colProps}>
@@ -47,6 +50,23 @@ export default function SearchSidebar({
                     ? <p>There are {total} albums that match your search!</p>
                     : <p>There is {total} album that matches your search!</p>
                 }
+            </div>
+
+             <div className="mx-auto mt-2">
+                {numDisplayed > 1
+                    ? <p>There are {numDisplayed} tracks currently displayed!</p>
+                    : <p>There is {numDisplayed} track currently displayed!</p>
+                }
+            </div>
+
+            <div>
+                <Button
+                    onClick={onLoadLess}
+                    disabled={disabled}
+                    variant={theme === "light" ? "dark" : "light"}
+                >
+                    Load Less
+                </Button>
             </div>
         </Col>
     );

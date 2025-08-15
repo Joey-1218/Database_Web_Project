@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { ThemeContext } from "../contexts/ThemeContext";
 import { Button } from "react-bootstrap";
+import "./styles/TrackInfoPage.css"
 
 export default function TrackPage() {
     const { theme } = useContext(ThemeContext);
@@ -53,47 +54,60 @@ export default function TrackPage() {
     }
 
     return (
-        <>
-            <h1 style={{ marginTop: 12 }}>{track_name}</h1>
-            <p><strong>Popularity:</strong> {track_popularity ?? "N/A"}</p>
-            <p><strong>Album:</strong> {album_name ?? "Unknown"} {album_id ? `(id: ${album_id})` : ""}</p>
-            <p><strong>Release date:</strong> {release_date ?? "Unknown"}</p>
-            <h2>Artist(s)</h2>
-            {artists.length === 0 ? (
-                <p>(No artist info)</p>
-            ) : (
-                <ul>
-                    {artists.map(a => (
-                        <li key={a.artist_id}>
-                            {a.artist_name}
-                        </li>
-                    ))}
+        <section className="track-page">
+            <header className="track-header">
+                <h1 className="track-title">{track_name}</h1>
+
+                <div className="track-meta">
+                    <div className="meta-row">
+                        <span className="meta-badge"><strong>Popularity:</strong> {track_popularity ?? "N/A"}</span>
+                        <span className="meta-badge"><strong>Album:</strong> {album_name ?? "Unknown"}</span>
+                        <span className="meta-badge"><strong>Release:</strong> {release_date ?? "Unknown"}</span>
+                    </div>
+                </div>
+            </header>
+
+            <div className="section">
+                <h2>Artist(s)</h2>
+                {artists.length === 0 ? (
+                    <p>(No artist info)</p>
+                ) : (
+                    <ul className="artists-list">
+                        {artists.map(a => (
+                            <li key={a.artist_id}>{a.artist_name}</li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+
+            <div className="section">
+                <h2>Audio Features</h2>
+                <ul className="features">
+                    <li>Danceability: {danceability ?? "N/A"}</li>
+                    <li>Energy: {energy ?? "N/A"}</li>
+                    <li>Key: {key ?? "N/A"}</li>
+                    <li>Loudness: {loudness ?? "N/A"}</li>
+                    <li>Mode: {mode ?? "N/A"}</li>
+                    <li>Speechiness: {speechiness ?? "N/A"}</li>
+                    <li>Acousticness: {acousticness ?? "N/A"}</li>
+                    <li>Instrumentalness: {instrumentalness ?? "N/A"}</li>
+                    <li>Liveness: {liveness ?? "N/A"}</li>
+                    <li>Valence: {valence ?? "N/A"}</li>
+                    <li>Tempo: {tempo ?? "N/A"}</li>
+                    <li>Duration (ms): {duration_ms ?? "N/A"}</li>
                 </ul>
-            )}
+            </div>
 
-            <h2>Audio Features</h2>
-            <ul>
-                <li>Danceability: {danceability ?? "N/A"}</li>
-                <li>Energy: {energy ?? "N/A"}</li>
-                <li>Key: {key ?? "N/A"}</li>
-                <li>Loudness: {loudness ?? "N/A"}</li>
-                <li>Mode: {mode ?? "N/A"}</li>
-                <li>Speechiness: {speechiness ?? "N/A"}</li>
-                <li>Acousticness: {acousticness ?? "N/A"}</li>
-                <li>Instrumentalness: {instrumentalness ?? "N/A"}</li>
-                <li>Liveness: {liveness ?? "N/A"}</li>
-                <li>Valence: {valence ?? "N/A"}</li>
-                <li>Tempo: {tempo ?? "N/A"}</li>
-                <li>Duration (ms): {duration_ms ?? "N/A"}</li>
-
-            </ul>
-            <Button
-                onClick={() => navigate(-1)}
-                variant={theme === 'light' ? 'dark' : 'light'}
-            >
-                Back
-            </Button>
-        </>
+            <div className="actions">
+                <Button
+                    onClick={() => navigate(-1)}
+                    variant={theme === 'light' ? 'dark' : 'light'}
+                >
+                    Back
+                </Button>
+            </div>
+        </section>
     );
+
 
 }

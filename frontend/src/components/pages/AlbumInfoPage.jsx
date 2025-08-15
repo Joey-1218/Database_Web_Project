@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router";
 import { ThemeContext } from "../contexts/ThemeContext";
 import { Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import "./styles/AlbumInfoPage.css";
+
 
 export default function AlbumInfoPage() {
     const { theme } = useContext(ThemeContext);
@@ -64,43 +66,54 @@ export default function AlbumInfoPage() {
     }
 
     return (
-        <>
-            <h1 style={{ marginTop: 12 }}>{album_name}</h1>
-            <sub><strong>Release Date: </strong>{release_date}</sub>
-            <h2>Artist(s)</h2>
-            {artists.length === 0 ? (
-                <p>(No artist info)</p>
-            ) : (
-                <ul>
-                    {artists.map(a => (
-                        <li key={a.artist_id}>
-                            {a.artist_name}
-                        </li>
-                    ))}
-                </ul>
-            )}
-            <h2>Track(s)</h2>
-            {tracks.length === 0 ? (
-                <p>(No track info)</p>
-            ) : (
-                <ol>
-                    {tracks.map(t => (
-                        <li key={t.track_id}>
-                            <Link to={`/songs/${t.track_id}`}>
-                                {t.track_name}
-                            </Link>
-                        </li>
-                    ))}
-                </ol>
-            )}
+        <section className="album-page">
+            <header className="album-header">
+                <h1 className="album-title">{album_name}</h1>
+                <div className="album-meta">
+                    <strong>Release Date:</strong> {release_date || "Unknown"}
+                </div>
+            </header>
 
-            <Button
-                onClick={() => navigate(-1)}
-                variant={theme === 'light' ? 'dark' : 'light'}
-            >
-                Back
-            </Button>
-        </>
+            <div className="section">
+                <h2>Artist(s)</h2>
+                {artists.length === 0 ? (
+                    <p>(No artist info)</p>
+                ) : (
+                    <ul className="artists-list">
+                        {artists.map(a => (
+                            <li key={a.artist_id}>{a.artist_name}</li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+
+            <div className="section">
+                <h2>Track(s)</h2>
+                {tracks.length === 0 ? (
+                    <p>(No track info)</p>
+                ) : (
+                    <ol className="tracks-list">
+                        {tracks.map(t => (
+                            <li key={t.track_id}>
+                                <Link className="track-link" to={`/songs/${t.track_id}`}>
+                                    {t.track_name}
+                                </Link>
+                            </li>
+                        ))}
+                    </ol>
+                )}
+            </div>
+
+            <div className="actions">
+                <Button
+                    onClick={() => navigate(-1)}
+                    variant={theme === "light" ? "dark" : "light"}
+                >
+                    Back
+                </Button>
+            </div>
+        </section>
     );
+
 
 }

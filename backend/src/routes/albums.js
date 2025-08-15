@@ -22,7 +22,7 @@ function clampInt(value, { def, min, max }) {
  */
 router.get('/', async (req, res, next) => {
     try {
-        const limit = clampInt(req.query.limit, { def: 20, min: 1, max: 100 });
+        const limit = clampInt(req.query.limit, { def: 20, min: 1, max: 22545 });
         const offset = clampInt(req.query.offset, { def: 0, min: 0, max: 22545 });
 
         const album = (req.query.album ?? '').trim();
