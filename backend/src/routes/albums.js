@@ -82,4 +82,52 @@ router.get('/', async (req, res, next) => {
     }
 });
 
+/**
+ * GET /api/albums/:id
+ * Returns one album row plus aggregated artist names and track info.
+ */
+router.get('/:id', async (req, res, next) => {
+    try {
+        const row = await get(
+            `
+            WITH tracks_agg AS (
+                SELECT
+                    t.album_id,
+                    json_group_array(
+                    json_object('track_id', t.track_id, 'track_name', t.track_name)
+                    ) AS tracks
+                FROM tracks t
+                WHERE t.album_id = ?1
+                GROUP BY t.album_id
+            ),
+            artists_agg AS (
+                SELECT
+                    p.album_id,
+                    json_group_array(
+                    json_object('artist_id', at.artist_id, 'artist_name', at.artist_name)
+                    ) AS artists
+                FROM publish p
+                JOIN artists at ON at.artist_id = p.artist_id
+                WHERE p.album_id = ?1
+                GROUP BY p.album_id
+            )
+            SELECT
+                al.*,
+                COALESCE(artists_agg.artists, json('[]')) AS artists,
+                COALESCE(tracks_agg.tracks,  json('[]')) AS tracks
+            FROM albums al
+            LEFT JOIN tracks_agg  ON tracks_agg.album_id  = al.album_id
+            LEFT JOIN artists_agg ON artists_agg.album_id = al.album_id
+            WHERE al.album_id = ?1;
+      `,
+            [req.params.id]
+        );
+
+        if (!row) return res.status(404).json({ error: 'Track not found' });
+        res.json(row);
+    } catch (err) {
+        next(err);
+    }
+});
+
 export default router;

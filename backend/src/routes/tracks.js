@@ -21,14 +21,11 @@ function clampInt(value, { def, min, max }) {
  */
 router.get('/', async (req, res, next) => {
   try {
-    const limit  = clampInt(req.query.limit,  { def: 20, min: 1,  max: 28356 });
-    const offset = clampInt(req.query.offset, { def: 0,  min: 0,  max: 28356 });
+    const limit = clampInt(req.query.limit, { def: 20, min: 0, max: 28356 });
+    const offset = clampInt(req.query.offset, { def: 0, min: 0, max: 28356 });
 
-    const track  = (req.query.track  ?? '').trim();
+    const track = (req.query.track ?? '').trim();
     const artist = (req.query.artist ?? '').trim();
-    
-    // const trackLike = `%${track}%`;
-    // const artistLike = `%${artist}%`
 
     const FROM = `
       FROM tracks t
@@ -68,13 +65,13 @@ router.get('/', async (req, res, next) => {
         t.album_id,
         al.album_name,
         al.release_date,
-        -- a few audio features your UI already shows
         t.danceability, t.energy, t.valence, t.tempo,
-        GROUP_CONCAT(DISTINCT a.artist_name) AS artist_names
+        json_group_array(
+          json_object('artist_id', a.artist_id, 'artist_name', a.artist_name)
+        ) AS artists
       ${FROM}
       ${where}
       GROUP BY t.track_id
-      -- nulls last, then name for stable order
       ORDER BY (t.track_popularity IS NULL), t.track_popularity DESC, t.track_name ASC
       LIMIT ? OFFSET ?;
       `,

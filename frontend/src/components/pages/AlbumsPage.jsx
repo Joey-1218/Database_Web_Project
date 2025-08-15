@@ -80,7 +80,7 @@ export default function AlbumsPage() {
           {!loading && !error && items.length > 0 && (
             <Row>
               {chunk.map((a) => (
-                <AlbumCard album={a}/>
+                <AlbumCard album={a} key={a.album_id}/>
                 // <p key={a.album_id}>{a.album_name} by {a.artist_names} is released on {a.release_date}.</p>
               ))}
               <Button onClick={handleLoadMore} disabled={total <= limit}>Load More</Button>
