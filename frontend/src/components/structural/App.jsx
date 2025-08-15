@@ -16,7 +16,8 @@ import { TracksProvider } from "../contexts/TracksContext";
 import ThemeProvider from "../contexts/ThemeContext";
 import { PlaylistProvider } from "../contexts/PlaylistContext";
 import { AlbumsProvider } from "../contexts/AlbumsContext";
-import TrackPage from "../pages/TrackPage";
+import TrackInfoPage from "../pages/TrackInfoPage";
+import AlbumInfoPage from "../pages/AlbumInfoPage";
 
 function App() {
 
@@ -40,7 +41,8 @@ function App() {
                   <Route path="library/playlists" element={<PlaylistPage />}></Route>
                   <Route path="library/favsongs" element={<FavSong />}></Route>
                   <Route path="*" element={<NoMatchPage />} />
-                  <Route path="songs/:id" element={<TrackPage/>}></Route>
+                  <Route path="songs/:id" element={<TrackInfoPage/>}></Route>
+                  <Route path="albums/:id" element={<AlbumInfoPage/>}></Route>
                 </Route>
               </Routes>
             </HashRouter>

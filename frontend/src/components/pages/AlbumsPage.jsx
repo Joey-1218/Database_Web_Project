@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from "react"
 import { Button, Col, Row } from "react-bootstrap";
 import AlbumsContext from "../contexts/AlbumsContext";
 import AlbumSearchSidebar from "./content/AlbumSearchSideBar";
+import AlbumCard from "./content/AlbumCard";
 import { ThemeContext } from "../contexts/ThemeContext";
 const PAGE_SIZE = 36;
 
@@ -79,7 +80,8 @@ export default function AlbumsPage() {
           {!loading && !error && items.length > 0 && (
             <Row>
               {chunk.map((a) => (
-                <p key={a.album_id}>{a.album_name} by {a.artist_names} is released on {a.release_date}.</p>
+                <AlbumCard album={a}/>
+                // <p key={a.album_id}>{a.album_name} by {a.artist_names} is released on {a.release_date}.</p>
               ))}
               <Button onClick={handleLoadMore} disabled={total <= limit}>Load More</Button>
             </Row>

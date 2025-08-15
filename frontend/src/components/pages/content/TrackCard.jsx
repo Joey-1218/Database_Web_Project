@@ -2,7 +2,7 @@ import { Button, Card, Dropdown } from "react-bootstrap";
 import PlaylistContext from "../../contexts/PlaylistContext";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
-import "./track-tile.css"; // styles below
+import "./styles/track-tile.css"; // styles below
 
 export default function TrackCard({ track }) {
 
