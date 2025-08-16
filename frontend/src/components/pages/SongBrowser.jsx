@@ -11,6 +11,9 @@ export default function SongBrowser() {
     const trackNameInputRef = useRef();
     const trackArtistInputRef = useRef();
 
+    const [sort, setSort] = useState('');
+    const [dir, setDir] = useState('desc');  // 'asc' | 'desc'
+
     //data comes from context
     const { items, total, loading, error, loadTracks } = useContext(TracksContext);
 
@@ -29,7 +32,7 @@ export default function SongBrowser() {
 
     // Initial load (empty search)
     useEffect(() => {
-        loadTracks({ track: "", artist: "", limit, offset });
+        loadTracks({ track: "", artist: "", limit, offset, sort, dir });
     }, []); // run once on mount
 
     // When page changes, refetch using current input values
@@ -38,9 +41,9 @@ export default function SongBrowser() {
         const track = (trackNameInputRef.current?.value || "").trim();
         const artist = (trackArtistInputRef.current?.value || "").trim();
 
-        loadTracks({ track, artist, limit, offset });
+        loadTracks({ track, artist, limit, offset, sort, dir });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [limit, offset]);
+    }, [limit, offset, sort, dir]);
 
     const chunk = useMemo(() => {
         return items.slice(0, offset + limit)
@@ -53,7 +56,7 @@ export default function SongBrowser() {
         const artist = (trackArtistInputRef.current?.value || "").trim();
 
         // Fetch page 1 (offset 0) with current inputs
-        loadTracks({ track, artist, limit, offset: 0 });
+        loadTracks({ track, artist, limit, offset: 0, sort, dir });
     };
 
     // Reset: clear inputs, go to page 1, load empty search
@@ -62,7 +65,7 @@ export default function SongBrowser() {
         if (trackArtistInputRef.current) trackArtistInputRef.current.value = "";
         // if (albumNameInputRef.current) albumNameInputRef.current.value = "";
         // setPage(1);
-        loadTracks({ track: "", artist: "", limit, offset: 0 });
+        loadTracks({ track: "", artist: "", limit, offset: 0, sort, dir });
     };
 
     const handleLoadMore = () => {
@@ -80,6 +83,7 @@ export default function SongBrowser() {
 
     const { theme } = useContext(ThemeContext);
 
+
     return (
         <section>
             <h1 className="mb-4">Song Browser (Draft)</h1>
@@ -94,6 +98,11 @@ export default function SongBrowser() {
                     disabled={!canLoadLess}
                     numDisplayed={chunk.length}
                     total={total}
+                    sort={sort}
+                    setSort={setSort}
+                    dir={dir}
+                    setDir={setDir}
+                    setLimit={setLimit}
                 />
 
                 <Col xs={10} sm={10} md={9} lg={9}>

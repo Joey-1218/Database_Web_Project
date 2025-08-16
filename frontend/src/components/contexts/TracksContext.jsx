@@ -16,7 +16,7 @@ export function TracksProvider({ children }) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    async function loadTracks({ track = "", artist = "", limit = 60, offset = 0 } = {}) {
+    async function loadTracks({ track = "", artist = "", limit = 60, offset = 0, sort = "", dir = "desc" } = {}) {
         setIsLoading(true);
         setError(null);
         try {
@@ -26,6 +26,8 @@ export function TracksProvider({ children }) {
             if (artist) parms.set("artist", artist.trim())
             parms.set("limit", limit);
             parms.set("offset", offset);
+            if (sort) parms.set("sort", sort);
+            if (dir) parms.set("dir", dir);
 
             const res = await fetch(`http://localhost:53705/api/tracks?${parms.toString()}`);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
