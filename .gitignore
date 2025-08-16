@@ -48,3 +48,5 @@ spotify_songs.csv
 # Docker artifacts / tarballs (optional)
 *.tar
 *.tar.gz
+
+PlaylistPage copy.jsx
