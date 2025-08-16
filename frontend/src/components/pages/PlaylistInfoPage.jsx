@@ -20,8 +20,9 @@ export default function PlaylistInfoPage() {
     (async () => {
       setLoading(true); setErr(null);
       try {
-        const res = await api.get(`/playlists/${id}`);
-        if (!ignore) setPlaylist(res.data);
+        const { data } = await api.get(`/playlists/${id}`);   // axios
+        const record = Array.isArray(data) ? data[0] : data;  // handle array or object
+        if (!ignore) setPlaylist(record ?? null);
       } catch (e) {
         if (!ignore) setErr(e);
       } finally {
@@ -30,6 +31,7 @@ export default function PlaylistInfoPage() {
     })();
     return () => { ignore = true; };
   }, [id]);
+
 
   if (loading) return <p>Loading…</p>;
   if (err) return <p style={{ color: "red" }}>Error: {String(err.message || err)}</p>;
@@ -52,11 +54,11 @@ export default function PlaylistInfoPage() {
     <section className="playlist-page">
       <header className="playlist-header">
         <h1 className="playlist-title">{playlist_name ?? "(Untitled Playlist)"}</h1>
-        <div className="playlist-meta">
+        {/* <div className="playlist-meta">
           {owner_name ? <span><strong>Owner:</strong> {owner_name} • </span> : null}
           <strong>Created:</strong> {created_at || "Unknown"} •{" "}
           {is_seed ? <span title="Seed playlist">Seed</span> : <span>Custom</span>}
-        </div>
+        </div> */}
       </header>
 
       <div className="section">
