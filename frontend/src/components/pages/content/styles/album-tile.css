@@ -12,7 +12,7 @@
 }
 
 .album-tile:hover {
-  background: rgba(0,0,0,.03);
+  background: #1DB954;
   text-decoration: none;
 }
 

@@ -7,7 +7,6 @@ import LogoutPage from '../auth/LogoutPage';
 import RegisterPage from '../auth/RegisterPage';
 import AlbumsPage from '../pages/AlbumsPage';
 import PlaylistPage from '../pages/PlaylistPage';
-import FavSong from '../pages/FavSong';
 import SongBrowser from '../pages/SongBrowser';
 import NoMatchPage from "../pages/NoMatchPage";
 import SpotifyLayout from "./SpotifyLayout";
@@ -20,8 +19,6 @@ import TrackInfoPage from "../pages/TrackInfoPage";
 import AlbumInfoPage from "../pages/AlbumInfoPage";
 
 function App() {
-
-  // const [favorites, setFavorites] = React.useState([]);
 
   return (
     <PlaylistProvider>

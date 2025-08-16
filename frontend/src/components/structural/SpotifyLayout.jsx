@@ -68,13 +68,14 @@ function SpotifyLayout() {
                             </NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
+                    <ThemeToggle
+                        className="position-fixed top-1 end-0 p-2"
+                    />
                 </Container>
             </Navbar>
 
             <div style={{ margin: "1rem", paddingTop: "4.5rem" }}>
-                <ThemeToggle
-                    className="position-fixed top-1 end-0 p-2"
-                />
+
                 <Outlet />
 
             </div>

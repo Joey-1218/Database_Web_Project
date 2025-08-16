@@ -96,7 +96,7 @@ export default function AlbumsPage() {
                 </Col>
               ))}
               <Button
-                variant={theme === "light" ? "dark" : "light"}
+                variant={theme === "light" ? "outline-dark" : "outline-light"}
                 onClick={handleLoadMore}
                 disabled={total <= limit}
               >

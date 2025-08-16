@@ -1,8 +1,7 @@
 import { useContext } from "react";
 import { ThemeContext } from "./contexts/ThemeContext";
 
-import dayButton from "../assets/day-mode.png";
-import nightButton from "../assets/night-mode.png";
+import icon from "../assets/icon.png";
 
 export default function ThemeToggle({ className = "" }) {
 const { theme, toggleTheme } = useContext(ThemeContext);
@@ -15,10 +14,10 @@ const { theme, toggleTheme } = useContext(ThemeContext);
             style={{ lineHeight: 0 }}
         >
             <img
-                src={theme === "light" ? nightButton : dayButton}
+                src={icon}
                 alt="theme-toggle"
-                width={28}
-                height={28}
+                width={32}
+                height={32}
             />
         </button>
     );

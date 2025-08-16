@@ -126,7 +126,7 @@ export default function SongBrowser() {
                             <Button
                                 onClick={handleLoadMore}
                                 disabled={total <= limit}
-                                variant={theme === "light" ? "dark" : "light"}
+                                variant={theme === "light" ? "outline-dark" : "outline-light"}
                             >
                                 Load More
                             </Button>
