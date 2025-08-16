@@ -39,7 +39,6 @@ function App() {
                   <Route path="library/songs" element={<SongBrowser />}></Route>
                   <Route path="library/albums" element={<AlbumsPage />}></Route>
                   <Route path="library/playlists" element={<PlaylistPage />}></Route>
-                  <Route path="library/favsongs" element={<FavSong />}></Route>
                   <Route path="*" element={<NoMatchPage />} />
                   <Route path="songs/:id" element={<TrackInfoPage/>}></Route>
                   <Route path="albums/:id" element={<AlbumInfoPage/>}></Route>

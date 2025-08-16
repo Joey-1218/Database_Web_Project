@@ -66,12 +66,6 @@ function SpotifyLayout() {
                             >
                                 Playlists
                             </NavDropdown.Item>
-                            <NavDropdown.Item
-                                as={Link}
-                                to={`/library/favsongs`}
-                            >
-                                Favrioute Songs
-                            </NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
                 </Container>
