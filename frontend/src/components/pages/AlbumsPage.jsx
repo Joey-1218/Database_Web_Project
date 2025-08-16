@@ -12,8 +12,7 @@ export default function AlbumsPage() {
 
   const { theme } = useContext(ThemeContext);
 
-  const { items, total, loading, error, loadAlbums } = useContext(AlbumsContext);
-
+  const { items, total, isLoading, error, loadAlbums } = useContext(AlbumsContext);
 
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [offset, setOffset] = useState(0);
@@ -35,7 +34,7 @@ export default function AlbumsPage() {
 
   const chunk = useMemo(() => {
     return items.slice(0, offset + limit)
-  }, [items, offset]);
+  }, [items, offset, limit]);
 
   const onSearchAlbum = (e) => {
     e.preventDefault();
@@ -81,18 +80,18 @@ export default function AlbumsPage() {
           onLoadLess={handleLoadLess}
         />
         <Col xs={10} sm={10} md={9} lg={9}>
-          {loading && <p>Loading…</p>}
+          {/* {isLoading && <p>Loading…</p>} */}
           {error && <p style={{ color: "red" }}>Error: {String(error.message || error)}</p>}
 
-          {!loading && !error && items.length === 0 && (
+          {!isLoading && !error && items.length === 0 && (
             <p className="">NO RESULT</p>
           )}
 
-          {!loading && !error && items.length > 0 && (
+          {!error && items.length > 0 && (
             <Row>
               {chunk.map((a) => (
                 <Col key={a.album_id} xs={10} sm={6} md={4} lg={3} className="mb-2">
-                  <AlbumCard album={a} key={a.album_id} />
+                  <AlbumCard album={a} />
                 </Col>
               ))}
               <Button

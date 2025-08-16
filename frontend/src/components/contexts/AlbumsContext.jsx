@@ -16,7 +16,7 @@ export function AlbumsProvider({ children }) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    async function loadAlbums({ album = "", artist = "", limit = 60, offset = 0 } = {}) {
+    async function loadAlbums({ album = "", artist = "", limit = 100, offset = 0 } = {}) {
         setIsLoading(true);
         setError(null);
         try {

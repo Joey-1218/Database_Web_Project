@@ -91,15 +91,14 @@ router.get('/', async (req, res, next) => {
     const items = await all(
       `
       SELECT
-        t.track_id,
-        t.track_name,
-        t.track_popularity,
-        t.album_id,
+        t.*,
         al.album_name,
         al.release_date,
-        t.danceability, t.energy, t.valence, t.tempo,
         json_group_array(
-          json_object('artist_id', a.artist_id, 'artist_name', a.artist_name)
+          json_object(
+            'artist_id', a.artist_id,
+            'artist_name', a.artist_name
+          )
         ) AS artists
       ${FROM}
       ${where}

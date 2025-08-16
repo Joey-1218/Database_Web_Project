@@ -10,7 +10,9 @@ const __dirname  = path.dirname(__filename);
 
 // adjust these if your paths differ
 const DB_FILE   = path.resolve(__dirname, '../sql/spotify.db');
-const MIGRATION = path.resolve(__dirname, '../sql/2025-08-15_add_seed_flags.sql');
+// const MIGRATION = path.resolve(__dirname, '../sql/2025-08-15_add_seed_flags.sql');
+const MIGRATION = path.resolve(__dirname, '../sql/fix_created_at.sql');
+
 
 async function main() {
   const sql = await fs.readFile(MIGRATION, 'utf8');

@@ -15,7 +15,7 @@ export default function SongBrowser() {
     const [dir, setDir] = useState('desc');  // 'asc' | 'desc'
 
     //data comes from context
-    const { items, total, loading, error, loadTracks } = useContext(TracksContext);
+    const { items, total, isLoading, error, loadTracks } = useContext(TracksContext);
 
     //favrioute, to be merged into playlists
     const [favTrackIds, setFavTrackIds] = useStorage("favTrackIds", []);
@@ -107,14 +107,13 @@ export default function SongBrowser() {
 
                 <Col xs={10} sm={10} md={9} lg={9}>
                     {/* Add animation for loading later */}
-                    {loading && <p>Loading…</p>}
                     {error && <p style={{ color: "red" }}>Error: {String(error.message || error)}</p>}
 
-                    {!loading && !error && items.length === 0 && (
+                    {!isLoading && !error && items.length === 0 && (
                         <p className="">NO RESULT</p>
                     )}
 
-                    {!loading && !error && items.length > 0 && (
+                    {!error && items.length > 0 && (
                         <Row>
                             {chunk.map((track) => (
                                 <Col key={track.track_id} xs={10} sm={6} md={4} lg={3} className="mb-2">

@@ -1,5 +1,5 @@
 import { Button, Card, Dropdown } from "react-bootstrap";
-import PlaylistContext from "../../contexts/PlaylistContext";
+import PlaylistContext from "../../contexts/PlaylistsContext";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import "./styles/track-tile.css"; // styles below

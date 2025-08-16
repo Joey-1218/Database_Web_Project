@@ -4,7 +4,7 @@ import cors from 'cors';
 // Routers
 import tracksRouter from './routes/tracks.js';        
 import albumsRouter from './routes/albums.js';        
-// import playlistsRouter from './routes/playlists.js' // optional, if you have it
+import playlistsRouter from './routes/playlists.js' // optional, if you have it
 
 // Error middleware (optional file you already have)
 import errorHandler from './middleware/error-handler.js';
@@ -21,7 +21,7 @@ app.use(express.json());
 // Mount API routes
 app.use('/api/tracks', tracksRouter);
 app.use('/api/albums', albumsRouter);
-// app.use('/api/playlists', playlistsRouter);
+app.use('/api/playlists', playlistsRouter);
 
 // Centralized error handler (keeps route code clean)
 app.use(errorHandler);

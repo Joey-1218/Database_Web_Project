@@ -1,4 +1,4 @@
-import PlaylistContext from "../../contexts/PlaylistContext";
+import PlaylistContext from "../../contexts/PlaylistsContext";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import "./styles/album-tile.css"; // styles below

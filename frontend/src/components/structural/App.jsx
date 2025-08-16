@@ -12,16 +12,19 @@ import NoMatchPage from "../pages/NoMatchPage";
 import SpotifyLayout from "./SpotifyLayout";
 
 import { TracksProvider } from "../contexts/TracksContext";
-import ThemeProvider from "../contexts/ThemeContext";
-import { PlaylistProvider } from "../contexts/PlaylistContext";
 import { AlbumsProvider } from "../contexts/AlbumsContext";
+import { PlaylistsProvider } from "../contexts/PlaylistsContext";
+
+import ThemeProvider from "../contexts/ThemeContext";
 import TrackInfoPage from "../pages/TrackInfoPage";
 import AlbumInfoPage from "../pages/AlbumInfoPage";
+import PlaylistInfoPage from "../pages/PlaylistInfoPage";
+
 
 function App() {
 
   return (
-    <PlaylistProvider>
+    <PlaylistsProvider>
       <TracksProvider>
         <AlbumsProvider>
           <ThemeProvider>
@@ -37,15 +40,16 @@ function App() {
                   <Route path="library/albums" element={<AlbumsPage />}></Route>
                   <Route path="library/playlists" element={<PlaylistPage />}></Route>
                   <Route path="*" element={<NoMatchPage />} />
-                  <Route path="songs/:id" element={<TrackInfoPage/>}></Route>
-                  <Route path="albums/:id" element={<AlbumInfoPage/>}></Route>
+                  <Route path="songs/:id" element={<TrackInfoPage />}></Route>
+                  <Route path="albums/:id" element={<AlbumInfoPage />}></Route>
+                  <Route path="playlists/:id" element={<PlaylistInfoPage />}></Route>
                 </Route>
               </Routes>
             </HashRouter>
           </ThemeProvider>
         </AlbumsProvider>
       </TracksProvider>
-    </PlaylistProvider>
+    </PlaylistsProvider>
   );
 }
 
