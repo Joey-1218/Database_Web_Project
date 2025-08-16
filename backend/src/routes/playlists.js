@@ -53,13 +53,7 @@ router.get('/', async (req, res, next) => {
     const items = await all(
       `
               SELECT
-              p.*,
-              json_group_array(
-                json_object(
-                  'track_id', t.track_id,
-                  'track_name', t.track_name
-                )
-              ) AS tracks
+              p.*
               ${FROM}
               ${where}
               GROUP BY p.playlist_id
@@ -74,6 +68,47 @@ router.get('/', async (req, res, next) => {
       limit,
       offset,
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/playlists/:id
+ * Returns one playlist info
+ */
+router.get('/:id', async (req, res, next) => {
+  try {
+
+    const FROM = `
+      FROM playlists p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN appear_in a ON p.playlist_id = a.playlist_id
+      LEFT JOIN tracks t ON t.track_id = a.track_id
+    `;
+
+    const where = `WHERE p.playlist_id = ?`
+
+    // page of items
+    const row = await all(
+      `
+        SELECT
+        p.*,
+        json_group_array(
+          json_object(
+            'track_id', t.track_id,
+            'track_name', t.track_name
+          )
+        ) AS tracks
+        ${FROM}
+        ${where}
+        GROUP BY p.playlist_id;
+      `,
+      [req.params.id]
+    );
+
+    if (!row) return res.status(404).json({ error: 'Track not found' });
+    res.json(row);
   } catch (err) {
     next(err);
   }
