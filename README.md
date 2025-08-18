@@ -81,7 +81,8 @@ git clone <repo> && cd <repo>
 
 # 1) Build the SQLite DB from CSV
 #    Place spotify_songs.csv under backend/data/ if not already present
-node backend/scripts/ingest-tracks.js
+node backend/script/ingest-tracks.js
+node backend/script/migrate.js
 
 # 2) Start the API (http://localhost:53705)
 cd backend
