@@ -9,6 +9,7 @@
     "migrate": "node ./script/migrate.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "csv-parse": "^6.1.0",
     "express": "^4.19.0",
