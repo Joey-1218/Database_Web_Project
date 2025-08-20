@@ -7,15 +7,15 @@ import ThemeToggle from "../ThemeToggle";
 
 function SpotifyLayout() {
     const [loginStatus, setLoginStatus] = React.useState(() => {
-        const saved = sessionStorage.getItem("spotify-login");
+        const saved = sessionStorage.getItem("auth");
         return saved ? JSON.parse(saved) : null;
     });
 
     React.useEffect(() => {
         if (loginStatus) {
-            sessionStorage.setItem("spotify-login", JSON.stringify(loginStatus));
+            sessionStorage.setItem("auth", JSON.stringify(loginStatus));
         } else {
-            sessionStorage.removeItem("spotify-login");
+            sessionStorage.removeItem("auth");
         }
     }, [loginStatus]);
 

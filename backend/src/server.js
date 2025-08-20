@@ -10,7 +10,7 @@ import loginRouter from "./routes/auth/login.js";
 
 import cookieParser from "cookie-parser";
 import { authOptional } from "./middleware/auth.js";
-// Error middleware (optional file you already have)
+// Error middleware 
 import errorHandler from './middleware/error-handler.js';
 import 'dotenv/config'; // or use dotenv.config() early
 import { PORT, CORS_ORIGIN, JWT_SECRET } from './config.js'; // ensures validation runs

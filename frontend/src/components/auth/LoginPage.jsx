@@ -19,6 +19,12 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { data } = await api.post("/login", { username, password });
+      const { user, token } = data ?? {};
+      if (!user || !token) throw new Error("Malformed login response");
+
+      sessionStorage.setItem("auth", JSON.stringify({ user, token }));
+      api.defaults.headers.common.Authorization = `Bearer ${token}`;
+
       setSuccess(`Welcome back, ${data?.user?.username}! (id=${data?.user?.id})`);
       window.alert("Logged in successfully!");
       // optional: localStorage.setItem("currentUser", JSON.stringify(data.user));
