@@ -40,7 +40,6 @@ app.use('/api/login', loginRouter);
 app.use(errorHandler);
 
 // Start server
-const PORT = process.env.PORT || 53705;
 app.listen(PORT, () => {
   console.log(`API listening on http://localhost:${PORT}`);
 });
