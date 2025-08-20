@@ -50,3 +50,14 @@ spotify_songs.csv
 *.tar.gz
 
 PlaylistPage copy.jsx
+
+# dotenv (ignore secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# allow non-secret templates
+!.env.example
+!.env.template

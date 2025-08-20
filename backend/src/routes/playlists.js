@@ -114,38 +114,34 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
-  try {
-    const { name, desc } = req.body;
-    const id = crypto.randomUUID();
-    await db.run(
-      "INSERT INTO playlists (id, name, desc) VALUES (?, ?, ?)",
-      id, name, desc || null
-    );
-    res.status(201).json({ id, name, desc, trackIds: [] });
-  } catch (err) { next(err); }
-});
+// POST /api/playlists
+// body: { name, genre?, subgenre?, description?, visibility? ('private' optional) }
+// router.post('/api/playlists', requireUser, async (req, res) => {
+//   const db = await openDb();
+//   const { name, genre, subgenre, description, visibility } = req.body;
 
-router.post("/:plId/tracks/:trackId", async (req, res, next) => {
-  const { plId, trackId } = req.params;
-  try {
-    await db.run(
-      "INSERT OR IGNORE INTO playlist_tracks VALUES (?, ?)",
-      plId, trackId
-    );
-    res.sendStatus(204);
-  } catch (err) { next(err); }
-});
+//   if (!name?.trim()) return res.status(400).json({ error: "playlist_name required" });
 
-router.delete("/:plId/tracks/:trackId", async (req, res, next) => {
-  const { plId, trackId } = req.params;
-  try {
-    await db.run(
-      "DELETE FROM playlist_tracks WHERE playlist_id=? AND track_id=?",
-      plId, trackId
-    );
-    res.sendStatus(204);
-  } catch (err) { next(err); }
-});
+//   const vis = (visibility && visibility !== 'public') ? visibility : 'private';
+
+//   const sql = `
+//     INSERT INTO playlists
+//       (playlist_name, playlist_genre, playlist_subgenre, description,
+//        user_id, created_at, is_seed, visibility)
+//     VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 0, ?)
+//   `;
+//   try {
+//     const result = await db.run(sql, [
+//       name.trim(), genre ?? null, subgenre ?? null, description ?? null,
+//       req.user.id, vis
+//     ]);
+//     const playlist_id = result.lastID;
+//     const row = await db.get(`SELECT * FROM playlists WHERE playlist_id = ?`, [playlist_id]);
+//     res.status(201).json(row);
+//   } catch (e) {
+//     res.status(500).json({ error: e.message });
+//   }
+// });
+
 
 export default router;

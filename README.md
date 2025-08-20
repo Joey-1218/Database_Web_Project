@@ -83,6 +83,9 @@ git clone <repo> && cd <repo>
 #    Place spotify_songs.csv under backend/data/ if not already present
 node backend/script/ingest-tracks.js
 node backend/script/migrate.js
+cp backend/.env.example backend/.env
+# then edit backend/.env and set JWT_SECRET to a random value
+# e.g. `openssl rand -hex 32`
 
 # 2) Start the API (http://localhost:53705)
 cd backend
