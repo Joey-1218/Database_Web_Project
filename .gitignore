@@ -24,12 +24,12 @@ backend/dist/
 !.env.example
 
 # SQLite artifacts
-backend/sql/*.db*
-backend/sql/*.sqlite*
-backend/sql/spotify.db
-backend/sql/spotify.db-journal
-backend/sql/spotify.db-shm
-backend/sql/spotify.db-wal
+# backend/sql/*.db*
+# backend/sql/*.sqlite*
+# backend/sql/spotify.db
+# backend/sql/spotify.db-journal
+# backend/sql/spotify.db-shm
+# backend/sql/spotify.db-wal
 
 # Editor directories and files
 .vscode/*
