@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { ThemeContext } from "../contexts/ThemeContext";
 import { Button } from "react-bootstrap";
+import api from "../../api";
+import AddToPlaylistDropdown from "./content/AddToPlayListDropdown";
 import "./styles/TrackInfoPage.css"
 
 export default function TrackPage() {
@@ -105,6 +107,7 @@ export default function TrackPage() {
                 >
                     Back
                 </Button>
+                <AddToPlaylistDropdown trackId={track_id} />
             </div>
         </section>
     );
