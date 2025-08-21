@@ -4,6 +4,7 @@ import PlaylistsContext from "../contexts/PlaylistsContext";
 import PlaylistSearchSidebar from "./content/PlaylistSearchSidebar";
 import PlaylistCard from "./content/PlaylistCard";
 import { ThemeContext } from "../contexts/ThemeContext";
+import LoginContext from "../contexts/LoginContext";
 
 const PAGE_SIZE = 100;
 
@@ -17,14 +18,20 @@ export default function PlaylistsPage() {
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [offset, setOffset] = useState(0);
 
-  const [tab, setTab] = useState("explore");
-  const isMine = tab === "mine";
+  const [isMine, setIsMine] = useState(false);
+  const [loginStatus,] = useContext(LoginContext);
+  useEffect(() => {
+    if (loginStatus) {
+      setIsMine(true);
+    }
+  }, [loginStatus]);
 
-  // single, authoritative loader effect — triggers on tab/limit/offset
+
+  // single, authoritative loader effect — triggers on limit/offset
   useEffect(() => {
     const name = (playlistNameInputRef.current?.value || "").trim();
     loadPlaylists({ name, limit, offset: 0, mine: isMine });
-  }, [tab, limit, offset, isMine, loadPlaylists]);
+  }, [limit, offset, isMine, loadPlaylists]);
 
   // remove the second effect to avoid races and stale params
 
@@ -55,33 +62,6 @@ export default function PlaylistsPage() {
     <section>
       <h1>Playlists</h1>
       <div className="mb-3" style={{ display: "flex", gap: 8 }}>
-        <Button
-          size="sm"
-          variant={tab === "explore" ? (theme === "light" ? "dark" : "light") : "outline-secondary"}
-          onClick={() => {
-            // reset pagination when switching tab
-            setTab("explore");
-            setOffset(0);
-            setLimit(PAGE_SIZE);
-          }}
-          disabled={tab === "explore"}
-        >
-          Explore
-        </Button>
-        <Button
-          size="sm"
-          variant={tab === "mine" ? (theme === "light" ? "dark" : "light") : "outline-secondary"}
-          onClick={() => {
-            // reset pagination when switching tab
-            setTab("mine");
-            setOffset(0);
-            setLimit(PAGE_SIZE);
-          }}
-          disabled={tab === "mine"}
-          title="Shows public seed + your private playlists (requires login)"
-        >
-          My Playlists
-        </Button>
       </div>
       <Row>
         <PlaylistSearchSidebar
@@ -100,8 +80,7 @@ export default function PlaylistsPage() {
           {!isLoading && !error && items.length === 0 && <p className="">NO RESULT</p>}
 
           {!error && items.length > 0 && (
-            <Row /* ADDED: key forces list to remount when tab switches (prevents subtle stale UI) */
-                 key={tab}>
+            <Row>
               {chunk.map((p) => (
                 <Col key={p.playlist_id} xs={10} sm={6} md={4} lg={3} className="mb-2">
                   <PlaylistCard playlist={p} />
