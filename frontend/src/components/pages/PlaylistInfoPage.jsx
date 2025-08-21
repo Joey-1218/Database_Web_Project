@@ -37,7 +37,9 @@ export default function PlaylistInfoPage() {
   if (err) return <p style={{ color: "red" }}>Error: {String(err.message || err)}</p>;
   if (!playlist) return <p>Not found.</p>;
 
-  const { playlist_id, playlist_name, is_seed, created_at, owner_name } = playlist;
+  const { playlist_id, playlist_name, playlist_genre,
+    playlist_subgenre, description, created_at,
+    is_seed } = playlist;
 
   let tracks = [];
   try {
@@ -53,13 +55,27 @@ export default function PlaylistInfoPage() {
   return (
     <section className="playlist-page">
       <header className="playlist-header">
-        <h1 className="playlist-title">{playlist_name ?? "(Untitled Playlist)"}</h1>
-        {/* <div className="playlist-meta">
-          {owner_name ? <span><strong>Owner:</strong> {owner_name} • </span> : null}
-          <strong>Created:</strong> {created_at || "Unknown"} •{" "}
-          {is_seed ? <span title="Seed playlist">Seed</span> : <span>Custom</span>}
-        </div> */}
+        <h1 className="playlist-title">
+          {playlist_name ?? "(Untitled Playlist)"}
+        </h1>
+
+        <div className="playlist-meta">
+          <span>
+            <strong>Genre:</strong> {playlist_genre ?? "Unknown"}
+          </span>
+          {"  "}
+          <span>
+            <strong>Subgenre:</strong> {playlist_subgenre ?? "Unknown"}
+          </span>
+          {"  "}
+          {created_at && (
+            <span>
+              <strong>Created:</strong> {created_at}
+            </span>
+          )}
+        </div>
       </header>
+      {is_seed ? <span>This is a seed playlist</span> : <Button size="sm" variant="success">Custom</Button>}
 
       <div className="section">
         <h2>Track(s)</h2>

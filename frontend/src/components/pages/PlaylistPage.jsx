@@ -17,34 +17,34 @@ export default function PlaylistsPage() {
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [offset, setOffset] = useState(0);
 
-  // Initial load (empty search)
-  useEffect(() => {
-    loadPlaylists({ name: "", limit, offset: 0 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [tab, setTab] = useState("explore");
+  const isMine = tab === "mine";
 
-  // When limit/offset change, refetch using current input values
+  // single, authoritative loader effect — triggers on tab/limit/offset
   useEffect(() => {
     const name = (playlistNameInputRef.current?.value || "").trim();
-    loadPlaylists({ name, limit, offset: 0 }); // grow-by-limit, keep offset=0
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [limit, offset]);
+    loadPlaylists({ name, limit, offset: 0, mine: isMine });
+  }, [tab, limit, offset, isMine, loadPlaylists]);
+
+  // remove the second effect to avoid races and stale params
 
   const chunk = useMemo(() => items.slice(0, offset + limit), [items, offset, limit]);
 
   const onSearchPlaylists = (e) => {
     e.preventDefault();
     const name = (playlistNameInputRef.current?.value || "").trim();
-    // setLimit(PAGE_SIZE);
-    // setOffset(0);
-    loadPlaylists({ name, limit, offset: 0 });
+    // reset pagination on new search
+    setOffset(0);
+    setLimit(PAGE_SIZE);
+    loadPlaylists({ name, limit: PAGE_SIZE, offset: 0, mine: isMine });
   };
 
   const onReset = () => {
     if (playlistNameInputRef.current) playlistNameInputRef.current.value = "";
-    // setLimit(PAGE_SIZE);
-    // setOffset(0);
-    loadPlaylists({ name: "", limit, offset: 0 });
+    // reset pagination on reset
+    setOffset(0);
+    setLimit(PAGE_SIZE);
+    loadPlaylists({ name: "", limit: PAGE_SIZE, offset: 0, mine: isMine });
   };
 
   const handleLoadMore = () => setLimit((prev) => prev + PAGE_SIZE);
@@ -54,6 +54,35 @@ export default function PlaylistsPage() {
   return (
     <section>
       <h1>Playlists</h1>
+      <div className="mb-3" style={{ display: "flex", gap: 8 }}>
+        <Button
+          size="sm"
+          variant={tab === "explore" ? (theme === "light" ? "dark" : "light") : "outline-secondary"}
+          onClick={() => {
+            // reset pagination when switching tab
+            setTab("explore");
+            setOffset(0);
+            setLimit(PAGE_SIZE);
+          }}
+          disabled={tab === "explore"}
+        >
+          Explore
+        </Button>
+        <Button
+          size="sm"
+          variant={tab === "mine" ? (theme === "light" ? "dark" : "light") : "outline-secondary"}
+          onClick={() => {
+            // reset pagination when switching tab
+            setTab("mine");
+            setOffset(0);
+            setLimit(PAGE_SIZE);
+          }}
+          disabled={tab === "mine"}
+          title="Shows public seed + your private playlists (requires login)"
+        >
+          My Playlists
+        </Button>
+      </div>
       <Row>
         <PlaylistSearchSidebar
           theme={theme}
@@ -66,14 +95,13 @@ export default function PlaylistsPage() {
           onLoadLess={handleLoadLess}
         />
         <Col xs={10} sm={10} md={9} lg={9}>
-
           {error && <p style={{ color: "red" }}>Error: {String(error.message || error)}</p>}
 
-          {!isLoading && !error && items.length === 0 && (
-            <p className="">NO RESULT</p>
-          )}
+          {!isLoading && !error && items.length === 0 && <p className="">NO RESULT</p>}
+
           {!error && items.length > 0 && (
-            <Row>
+            <Row /* ADDED: key forces list to remount when tab switches (prevents subtle stale UI) */
+                 key={tab}>
               {chunk.map((p) => (
                 <Col key={p.playlist_id} xs={10} sm={6} md={4} lg={3} className="mb-2">
                   <PlaylistCard playlist={p} />

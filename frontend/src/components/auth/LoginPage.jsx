@@ -9,9 +9,9 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState(null);
-  const [success, setSuccess]   = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +28,7 @@ export default function LoginPage() {
       setSuccess(`Welcome back, ${data?.user?.username}! (id=${data?.user?.id})`);
       window.alert("Logged in successfully!");
       // optional: localStorage.setItem("currentUser", JSON.stringify(data.user));
+      sessionStorage.setItem("token", data.token); 
     } catch (err) {
       const msg = err?.response?.data?.error || "Login failed";
       setError(msg);

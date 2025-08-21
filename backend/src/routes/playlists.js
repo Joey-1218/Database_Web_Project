@@ -38,44 +38,55 @@ function clampInt(value, { def, min, max }) {
 /**
  * GET /api/playlists
  * Query:
- *   playlist?      - search (matches album_name; case-insensitive)
- *   limit?  - default 20, max 100
- *   offset? - default 0
+ *   playlist?      - search (matches playlist_name; case-insensitive)
+ *   limit?         - default 20, max 20000
+ *   offset?        - default 0
+ *   mine?          - include my private (is_seed=0) if 'true' and logged in
  * Returns: { items, total, limit, offset }
  */
 router.get('/', async (req, res, next) => {
   try {
-    const limit = clampInt(req.query.limit, { def: 20, min: 1, max: 471 });
-    const offset = clampInt(req.query.offset, { def: 0, min: 0, max: 471 });
+    const limit = clampInt(req.query.limit,  { def: 20, min: 1, max: 20000 });
+    const offset = clampInt(req.query.offset, { def: 0,  min: 0, max: 20000 });
 
     const playlist = (req.query.playlist ?? '').trim();
 
     const FROM = `
-              FROM playlists p
-              LEFT JOIN users u ON p.user_id = u.id
-              LEFT JOIN appear_in a ON p.playlist_id = a.playlist_id
-              LEFT JOIN tracks t ON t.track_id = a.track_id
-          `;
+      FROM playlists p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN appear_in a ON p.playlist_id = a.playlist_id
+      LEFT JOIN tracks t ON t.track_id = a.track_id
+    `;
 
     const conds = [];
     const params = [];
 
     const includeMine = req.query.mine === 'true' && req.user?.id;
     if (includeMine) {
-      conds.push(`( (p.is_seed = 1 AND p.visibility = 'public') OR (p.is_seed = 0 AND p.user_id = ?) )`);
+      // public seed OR my user-created
+      conds.push(`((p.is_seed = 1 AND p.visibility = 'public') OR (p.is_seed = 0 AND p.user_id = ?))`);
       params.push(req.user.id);
     } else {
+      // public seed only
       conds.push(`(p.is_seed = 1 AND p.visibility = 'public')`);
     }
 
     if (playlist) {
-      conds.push('p.playlist_name LIKE ? COLLATE NOCASE');
+      conds.push(`p.playlist_name LIKE ? COLLATE NOCASE`);
       params.push(`%${playlist}%`);
     }
 
     const where = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
 
-    // total
+    // Put user-created first, then newest, then name
+    const orderBy = `
+      ORDER BY
+        p.is_seed ASC,
+        COALESCE(p.created_at, '0000-00-00 00:00:00') DESC,
+        p.playlist_name COLLATE NOCASE ASC
+    `;
+
+    // total count
     const totalRow = await get(
       `SELECT COUNT(DISTINCT p.playlist_id) AS total ${FROM} ${where};`,
       params
@@ -84,13 +95,14 @@ router.get('/', async (req, res, next) => {
     // page of items
     const items = await all(
       `
-              SELECT
-              p.*
-              ${FROM}
-              ${where}
-              GROUP BY p.playlist_id
-              LIMIT ? OFFSET ?;
-              `,
+        SELECT
+          p.*
+        ${FROM}
+        ${where}
+        GROUP BY p.playlist_id
+        ${orderBy}
+        LIMIT ? OFFSET ?;
+      `,
       [...params, limit, offset]
     );
 
@@ -104,6 +116,7 @@ router.get('/', async (req, res, next) => {
     next(err);
   }
 });
+
 
 /**
  * GET /api/playlists/:id
@@ -169,7 +182,6 @@ router.post('/', authRequired, async (req, res, next) => {
     const vis = visibility && visibility !== 'public' ? visibility : 'private';
 
     const playlist_id = await genUniquePlaylistId();
-    if (!playlist_name) return res.status(400).json({ error: 'playlist_id required' });
 
     const result = await run(
       `
@@ -195,7 +207,7 @@ router.post('/', authRequired, async (req, res, next) => {
  */
 router.post('/:id/tracks', authRequired, async (req, res, next) => {
   try {
-    const playlist_id = Number(req.params.id);
+    const playlist_id = String(req.params.id);
     const { track_id } = req.body || {};
     if (!track_id) return res.status(400).json({ error: 'track_id required' });
 
