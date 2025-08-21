@@ -29,13 +29,11 @@ Spotify Explorer Lite is a React + Vite frontend backed by Node/Express and SQLi
 
 ### Report organization & task assignment
 
-* **System architecture & dataset** — backend lead
-* **Schema/ER & relational model** — data engineer
-* **Frontend UX & API integration** — frontend lead
-* **Auth & security** — platform engineer
-* **Evaluation & testing** — QA lead
+* **All coding** — Jinyi Ge
+* Hao Xiao never accepted github collaborator invitation until the end of semester.
+* **Making slides** - Hao Xiao
+* The only contribution to this project
 
-> *Replace roles above with actual team member names.*
 
 ---
 
@@ -59,13 +57,7 @@ Spotify Explorer Lite is a React + Vite frontend backed by Node/Express and SQLi
 
 ### ER diagram (final)
 
-*Textual summary of entities & relationships:*
-
-* **Artist** ⟷ **Track** (M\:N via `track_artists`)
-* **Artist** ⟷ **Album** (M\:N via `album_artists`)
-* **Album** ⟶ **Track** (1\:N; each track belongs to one album)
-* **Playlist** ⟷ **Track** (M\:N via `playlist_tracks`)
-* **User** ⟶ **Playlist** (1\:N; seed playlists have `user_id = NULL`)
+![ER diagram](./ER%20diagram.png)
 
 ### Relational model (final)
 
@@ -212,4 +204,4 @@ playlist_tracks(playlist_id TEXT NOT NULL REFERENCES playlists(playlist_id),
   * Vite proxy mapping `'/api'` → backend port
 * **DB**: `node backend/scripts/ingest-tracks.js`; apply migrations via `scripts/migrate.js` or `sqlite3 < file.sql>`.
 
-> *Replace placeholder names and add any screenshots/diagrams your instructor requires.*
+
