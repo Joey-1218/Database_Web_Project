@@ -219,7 +219,7 @@ router.post('/:id/tracks', authRequired, async (req, res, next) => {
     if (pl.is_seed === 1) return res.status(400).json({ error: 'Cannot modify seed playlist' });
 
     await run(
-      `INSERT OR IGNORE INTO appear_in (playlist_id, track_id) VALUES (?, ?);`,
+      `INSERT OR IGNORE INTO playlist_tracks (playlist_id, track_id) VALUES (?, ?);`,
       [playlist_id, track_id]
     );
 
