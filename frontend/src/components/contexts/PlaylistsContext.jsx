@@ -1,4 +1,5 @@
-import { createContext, useCallback, useMemo, useState } from "react";
+// src/contexts/PlaylistsContext.jsx
+import { createContext, useCallback, useMemo, useRef, useState } from "react";
 import api from "../../api";
 
 const PlaylistsContext = createContext({
@@ -6,37 +7,34 @@ const PlaylistsContext = createContext({
   total: 0,
   isLoading: false,
   error: null,
-  loadPlaylists: () => { },
+  loadPlaylists: () => {},
 });
-
 export default PlaylistsContext;
 
 export function PlaylistsProvider({ children }) {
-  const [playlists, setPlaylists] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [playlists, setPlaylists]   = useState([]);
+  const [total, setTotal]           = useState(0);
+  const [isLoading, setIsLoading]   = useState(false);
+  const [error, setError]           = useState(null);
+  const lastSigRef                  = useRef(null); // avoid duplicate calls in StrictMode
 
-  // stabilize function identity so effects don't retrigger each render
-  // CHANGED: stabilize function identity so effects don't retrigger each render
-  const loadPlaylists = useCallback(async ({ name = "", limit = 100, offset = 0, mine = false } = {}) => {
+  const loadPlaylists = useCallback(async (opts = {}) => {
+    const { name = "", limit = 100, offset = 0, mine = false } = opts;
+    const params = { limit, offset };
+    const trimmed = name.trim();
+    if (trimmed) params.playlist = trimmed;
+    if (mine) params.mine = true;
+
+    const sig = JSON.stringify(params);
+    if (sig === lastSigRef.current) return;      // skip identical in-flight/in-dev duplicate
+    lastSigRef.current = sig;
+
     setIsLoading(true);
     setError(null);
     try {
-      const params = {};
-      if (name) params.playlist = name.trim();
-      params.limit = limit;
-      params.offset = offset;
-      if (mine) params.mine = true;
-
-      const token = sessionStorage.getItem("token");
-      const cfg = { params };
-      if (token) cfg.headers = { Authorization: `Bearer ${token}` };
-
-      const res = await api.get("/playlists", cfg);
-      const data = res.data ?? {};
-      setPlaylists(Array.isArray(data.items) ? data.items : []);
-      setTotal(Number(data.total ?? 0));
+      const { data } = await api.get("/playlists", { params });
+      setPlaylists(Array.isArray(data?.items) ? data.items : []);
+      setTotal(Number(data?.total ?? 0));
     } catch (e) {
       setError(e);
       setPlaylists([]);
@@ -51,9 +49,5 @@ export function PlaylistsProvider({ children }) {
     [playlists, total, isLoading, error, loadPlaylists]
   );
 
-  return (
-    <PlaylistsContext.Provider value={value}>
-      {children}
-    </PlaylistsContext.Provider>
-  );
+  return <PlaylistsContext.Provider value={value}>{children}</PlaylistsContext.Provider>;
 }

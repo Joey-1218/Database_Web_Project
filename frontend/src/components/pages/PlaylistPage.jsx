@@ -1,3 +1,4 @@
+// src/pages/PlaylistsPage.jsx
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Col, Row } from "react-bootstrap";
 import PlaylistsContext from "../contexts/PlaylistsContext";
@@ -10,37 +11,27 @@ const PAGE_SIZE = 100;
 
 export default function PlaylistsPage() {
   const playlistNameInputRef = useRef();
-
   const { theme } = useContext(ThemeContext);
-
   const { items, total, isLoading, error, loadPlaylists } = useContext(PlaylistsContext);
 
-  const [limit, setLimit] = useState(PAGE_SIZE);
+  const [limit, setLimit]   = useState(PAGE_SIZE);
   const [offset, setOffset] = useState(0);
 
-  const [isMine, setIsMine] = useState(false);
-  const [loginStatus,] = useContext(LoginContext);
-  useEffect(() => {
-    if (loginStatus) {
-      setIsMine(true);
-    }
-  }, [loginStatus]);
+  // derive directly, no extra state/effect
+  const [loginStatus] = useContext(LoginContext);
+  const isMine = !!loginStatus;
 
-
-  // single, authoritative loader effect — triggers on limit/offset
+  // Single authoritative loader
   useEffect(() => {
     const name = (playlistNameInputRef.current?.value || "").trim();
-    loadPlaylists({ name, limit, offset: 0, mine: isMine });
+    loadPlaylists({ name, limit, offset, mine: isMine }); // use the real offset
   }, [limit, offset, isMine, loadPlaylists]);
-
-  // remove the second effect to avoid races and stale params
 
   const chunk = useMemo(() => items.slice(0, offset + limit), [items, offset, limit]);
 
   const onSearchPlaylists = (e) => {
     e.preventDefault();
     const name = (playlistNameInputRef.current?.value || "").trim();
-    // reset pagination on new search
     setOffset(0);
     setLimit(PAGE_SIZE);
     loadPlaylists({ name, limit: PAGE_SIZE, offset: 0, mine: isMine });
@@ -48,7 +39,6 @@ export default function PlaylistsPage() {
 
   const onReset = () => {
     if (playlistNameInputRef.current) playlistNameInputRef.current.value = "";
-    // reset pagination on reset
     setOffset(0);
     setLimit(PAGE_SIZE);
     loadPlaylists({ name: "", limit: PAGE_SIZE, offset: 0, mine: isMine });
@@ -61,8 +51,6 @@ export default function PlaylistsPage() {
   return (
     <section>
       <h1>Playlists</h1>
-      <div className="mb-3" style={{ display: "flex", gap: 8 }}>
-      </div>
       <Row>
         <PlaylistSearchSidebar
           theme={theme}
@@ -76,9 +64,7 @@ export default function PlaylistsPage() {
         />
         <Col xs={10} sm={10} md={9} lg={9}>
           {error && <p style={{ color: "red" }}>Error: {String(error.message || error)}</p>}
-
-          {!isLoading && !error && items.length === 0 && <p className="">NO RESULT</p>}
-
+          {!isLoading && !error && items.length === 0 && <p>NO RESULT</p>}
           {!error && items.length > 0 && (
             <Row>
               {chunk.map((p) => (
@@ -86,7 +72,6 @@ export default function PlaylistsPage() {
                   <PlaylistCard playlist={p} />
                 </Col>
               ))}
-
               <Button
                 variant={theme === "light" ? "outline-dark" : "outline-light"}
                 onClick={handleLoadMore}

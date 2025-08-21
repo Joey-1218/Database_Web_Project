@@ -2,6 +2,8 @@ import { Router } from "express";
 import crypto from "crypto";
 import { all, get, run } from '../db.js'; // CHANGED: import run for INSERT/DELETE ops
 import { authRequired } from "../middleware/auth.js"; // ADDED: for protected routes
+// import { authOptional } from "../middleware/auth.js";
+import { attachUserFromJWT } from "../middleware/auth.js";
 
 const router = Router();
 
