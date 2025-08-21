@@ -130,8 +130,8 @@ npm run dev
 
 ## 🗄️ Data model (high level)
 
-* Entities: `artists`, `albums`, `tracks`
-* M\:N joins: `track_artists`, `album_artists`
+* Entities: `artists`, `albums`, `tracks`, `users`
+* M\:N joins: `track_artists`, `album_artists`, `playlist_tracks`
 * Playlists:
 
   * `playlists` (seed + user), `playlist_tracks`
@@ -141,6 +141,7 @@ npm run dev
     * `publish(album_id, artist_id)` → `album_artists`
     * `appear_in(playlist_id, track_id)` → `playlist_tracks`
 * Trigger prevents modifying **seed** playlists.
+* This database is in BCNF.
 
 ---
 
