@@ -8,8 +8,7 @@
 
 ## Name of the students
 
-> *Replace with your names and emails here*
-> Example: Alice Example (alice@…), Bob Example (bob@…)
+> Jinyi Ge, Hao Xiao
 
 ---
 
