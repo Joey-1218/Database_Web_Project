@@ -2,9 +2,12 @@ import { useContext, useState } from "react";
 import { Card, Form, Button, Alert } from "react-bootstrap";
 import api from "../../api";
 import { ThemeContext } from "../contexts/ThemeContext";
+import LoginContext from "../contexts/LoginContext";
 import { Link } from "react-router-dom";
 
 export default function LoginPage() {
+  const [ , setLoginStatus] = useContext(LoginContext);
+
   const { theme } = useContext(ThemeContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -26,6 +29,7 @@ export default function LoginPage() {
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
       setSuccess(`Welcome back, ${data?.user?.username}! (id=${data?.user?.id})`);
+      setLoginStatus({ user, token });
       window.alert("Logged in successfully!");
       // optional: localStorage.setItem("currentUser", JSON.stringify(data.user));
       sessionStorage.setItem("token", data.token); 

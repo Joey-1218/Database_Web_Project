@@ -4,6 +4,7 @@ import { Link, Outlet } from "react-router-dom";
 
 import logo from "../../assets/logo.png";
 import ThemeToggle from "../ThemeToggle";
+import LoginContext from "../contexts/LoginContext";
 
 function SpotifyLayout() {
     const [loginStatus, setLoginStatus] = React.useState(() => {
@@ -76,7 +77,9 @@ function SpotifyLayout() {
 
             <div style={{ margin: "1rem", paddingTop: "4.5rem" }}>
 
-                <Outlet />
+                <LoginContext.Provider value={[loginStatus, setLoginStatus]}>
+                    <Outlet />
+                </LoginContext.Provider>
 
             </div>
         </div>
