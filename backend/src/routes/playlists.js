@@ -1,8 +1,32 @@
 import { Router } from "express";
 import crypto from "crypto";
-import { all, get } from '../db.js';
+import { all, get, run } from '../db.js'; // CHANGED: import run for INSERT/DELETE ops
+import { authRequired } from "../middleware/auth.js"; // ADDED: for protected routes
 
 const router = Router();
+
+// base62 ID generator (22 chars, like "6jI1gFr6ANFtT8MmTvA2Ux")
+const B62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+function genBase62Id(len = 22) {
+  const out = [];
+  while (out.length < len) {
+    // rejection sampling to avoid modulo bias
+    const buf = crypto.randomBytes(1);
+    const v = buf[0];
+    if (v < 248) {                 // 248 is 62 * 4; evenly divisible bucket
+      out.push(B62[v % 62]);
+    }
+  }
+  return out.join('');
+}
+// ensure uniqueness in DB (extremely low collision prob, but loop defensively)
+async function genUniquePlaylistId() {
+  while (true) {
+    const id = genBase62Id(22);
+    const exists = await get(`SELECT 1 FROM playlists WHERE playlist_id = ?`, [id]);
+    if (!exists) return id;
+  }
+}
 
 // small helpers
 function clampInt(value, { def, min, max }) {
@@ -35,6 +59,14 @@ router.get('/', async (req, res, next) => {
 
     const conds = [];
     const params = [];
+
+    const includeMine = req.query.mine === 'true' && req.user?.id;
+    if (includeMine) {
+      conds.push(`( (p.is_seed = 1 AND p.visibility = 'public') OR (p.is_seed = 0 AND p.user_id = ?) )`);
+      params.push(req.user.id);
+    } else {
+      conds.push(`(p.is_seed = 1 AND p.visibility = 'public')`);
+    }
 
     if (playlist) {
       conds.push('p.playlist_name LIKE ? COLLATE NOCASE');
@@ -90,16 +122,16 @@ router.get('/:id', async (req, res, next) => {
     const where = `WHERE p.playlist_id = ?`
 
     // page of items
-    const row = await all(
+    const row = await get(
       `
         SELECT
-        p.*,
-        json_group_array(
-          json_object(
-            'track_id', t.track_id,
-            'track_name', t.track_name
-          )
-        ) AS tracks
+          p.*,
+          json_group_array(
+            json_object(
+              'track_id', t.track_id,
+              'track_name', t.track_name
+            )
+          ) AS tracks
         ${FROM}
         ${where}
         GROUP BY p.playlist_id;
@@ -107,41 +139,127 @@ router.get('/:id', async (req, res, next) => {
       [req.params.id]
     );
 
-    if (!row) return res.status(404).json({ error: 'Track not found' });
+    if (!row) return res.status(404).json({ error: 'Playlist not found' });
+
+    // access control — allow public seed, or owner of private
+    const isPublicSeed = row.is_seed === 1 && row.visibility === 'public';
+    const isOwner = req.user?.id && row.user_id === req.user.id;
+    if (!(isPublicSeed || isOwner)) {
+      return res.status(403).json({ error: 'Not allowed' });
+    }
+
     res.json(row);
   } catch (err) {
     next(err);
   }
 });
 
-// POST /api/playlists
-// body: { name, genre?, subgenre?, description?, visibility? ('private' optional) }
-// router.post('/api/playlists', requireUser, async (req, res) => {
-//   const db = await openDb();
-//   const { name, genre, subgenre, description, visibility } = req.body;
+/**
+ * POST /api/playlists
+ * Body: { name, genre?, subgenre?, description?, visibility? }  // visibility defaults to 'private' for user-created
+ * Creates a user-owned playlist (is_seed=0).
+ */
+router.post('/', authRequired, async (req, res, next) => {
+  try {
+    const { name, genre, subgenre, description, visibility } = req.body || {};
+    const playlist_name = String(name ?? '').trim();
+    if (!playlist_name) return res.status(400).json({ error: 'playlist_name required' });
 
-//   if (!name?.trim()) return res.status(400).json({ error: "playlist_name required" });
+    // force non-public for user-created; allow 'private' or 'unlisted' if you use it
+    const vis = visibility && visibility !== 'public' ? visibility : 'private';
 
-//   const vis = (visibility && visibility !== 'public') ? visibility : 'private';
+    const playlist_id = await genUniquePlaylistId();
+    if (!playlist_name) return res.status(400).json({ error: 'playlist_id required' });
 
-//   const sql = `
-//     INSERT INTO playlists
-//       (playlist_name, playlist_genre, playlist_subgenre, description,
-//        user_id, created_at, is_seed, visibility)
-//     VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 0, ?)
-//   `;
-//   try {
-//     const result = await db.run(sql, [
-//       name.trim(), genre ?? null, subgenre ?? null, description ?? null,
-//       req.user.id, vis
-//     ]);
-//     const playlist_id = result.lastID;
-//     const row = await db.get(`SELECT * FROM playlists WHERE playlist_id = ?`, [playlist_id]);
-//     res.status(201).json(row);
-//   } catch (e) {
-//     res.status(500).json({ error: e.message });
-//   }
-// });
+    const result = await run(
+      `
+        INSERT INTO playlists
+          (playlist_id, playlist_name, playlist_genre, playlist_subgenre, description,
+           user_id, created_at, is_seed, visibility)
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 0, ?);
+      `,
+      [playlist_id, playlist_name, genre ?? null, subgenre ?? null, description ?? null, req.user.id, vis]
+    );
 
+    const created = await get(`SELECT * FROM playlists WHERE playlist_id = ?;`, [playlist_id]);
+    res.status(201).json(created);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /api/playlists/:id/tracks
+ * Body: { track_id }
+ * Owner-only; cannot modify seed playlists. Uses appear_in as the join table.
+ */
+router.post('/:id/tracks', authRequired, async (req, res, next) => {
+  try {
+    const playlist_id = Number(req.params.id);
+    const { track_id } = req.body || {};
+    if (!track_id) return res.status(400).json({ error: 'track_id required' });
+
+    const pl = await get(`SELECT * FROM playlists WHERE playlist_id = ?;`, [playlist_id]);
+    if (!pl) return res.status(404).json({ error: 'Playlist not found' });
+    if (pl.user_id !== req.user.id) return res.status(403).json({ error: 'Not owner' });
+    if (pl.is_seed === 1) return res.status(400).json({ error: 'Cannot modify seed playlist' });
+
+    await run(
+      `INSERT OR IGNORE INTO appear_in (playlist_id, track_id) VALUES (?, ?);`,
+      [playlist_id, track_id]
+    );
+
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * DELETE /api/playlists/:id/tracks/:trackId
+ * Owner-only removal.
+ */
+router.delete('/:id/tracks/:trackId', authRequired, async (req, res, next) => {
+  try {
+    const playlist_id = String(req.params.id);
+    const track_id = req.params.trackId;
+
+    const pl = await get(`SELECT * FROM playlists WHERE playlist_id = ?;`, [playlist_id]);
+    if (!pl) return res.status(404).json({ error: 'Playlist not found' });
+    if (pl.user_id !== req.user.id) return res.status(403).json({ error: 'Not owner' });
+
+    await run(
+      `DELETE FROM appear_in WHERE playlist_id = ? AND track_id = ?;`,
+      [playlist_id, track_id]
+    );
+
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * DELETE /api/playlists/:id
+ * Owner-only; cannot delete seed playlists.
+ */
+router.delete('/:id', authRequired, async (req, res, next) => {
+  try {
+    const playlist_id = String(req.params.id);
+
+    const pl = await get(`SELECT * FROM playlists WHERE playlist_id = ?;`, [playlist_id]);
+    if (!pl) return res.status(404).json({ error: 'Playlist not found' });
+    if (pl.user_id !== req.user.id) return res.status(403).json({ error: 'Not owner' });
+    if (pl.is_seed === 1) return res.status(400).json({ error: 'Cannot delete seed playlist' });
+
+    // delete tracks first in case FK cascade isn't set
+    await run(`DELETE FROM appear_in WHERE playlist_id = ?;`, [playlist_id]);
+    await run(`DELETE FROM playlists WHERE playlist_id = ?;`, [playlist_id]);
+
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
 
 export default router;

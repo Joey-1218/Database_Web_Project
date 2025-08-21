@@ -19,3 +19,9 @@ export function authOptional(req, res, next) {
   }
   next();
 }
+
+// named export so routes can `import { authRequired } ...`
+export function authRequired(req, res, next) {
+  if (!req.user) return res.status(401).json({ error: "Auth required" });
+  next();
+}
