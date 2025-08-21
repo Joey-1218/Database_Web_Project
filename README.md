@@ -79,8 +79,12 @@ frontend/
 # 0) From repo root
 git clone <repo> && cd <repo>
 
+cd backend
+npm install
+
 # 1) Build the SQLite DB from CSV
 #    Place spotify_songs.csv under backend/data/ if not already present
+cd ..
 node backend/script/ingest-tracks.js
 node backend/script/migrate.js
 cp backend/.env.example backend/.env
@@ -88,8 +92,7 @@ cp backend/.env.example backend/.env
 # e.g. `openssl rand -hex 32`
 
 # 2) Start the API (http://localhost:53705)
-cd backend
-npm install
+
 npm run dev
 
 # 3) Start the frontend (http://localhost:5173)
