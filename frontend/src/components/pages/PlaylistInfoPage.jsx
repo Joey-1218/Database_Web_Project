@@ -15,6 +15,8 @@ export default function PlaylistInfoPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
 
+  const [deleting, setDeleting] = useState(false); // added
+
   useEffect(() => {
     let ignore = false;
     (async () => {
@@ -52,6 +54,20 @@ export default function PlaylistInfoPage() {
     tracks = [];
   }
 
+  // IMPLEMENTED: delete handler with confirm + redirect + error handling
+  const handleDelete = async () => {
+    if (!window.confirm("Delete this playlist? This cannot be undone.")) return;
+    try {
+      setDeleting(true);
+      await api.delete(`/playlists/${id}`);
+      // redirect after successful delete (adjust path to your routes if needed)
+      navigate("/playlists");
+    } catch (e) {
+      const msg = e?.response?.data?.error || e.message || "Delete failed";
+      setErr(new Error(msg));
+      setDeleting(false);
+    }
+  };
   return (
     <section className="playlist-page">
       <header className="playlist-header">
@@ -75,7 +91,15 @@ export default function PlaylistInfoPage() {
           )}
         </div>
       </header>
-      {is_seed ? <span>This is a seed playlist</span> : <Button size="sm" variant="success">Custom</Button>}
+      {is_seed ? <span>This is a seed playlist</span> :
+        <Button
+          size="sm"
+          variant="success"
+          onClick={handleDelete}
+          disabled={deleting}
+        >
+          {deleting ? "Deleting..." : "Delete"}
+        </Button>}
 
       <div className="section">
         <h2>Track(s)</h2>

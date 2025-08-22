@@ -1,0 +1,311 @@
+{
+	"info": {
+		"_postman_id": "ab5d302f-133d-43f4-bdab-e155bb2d6216",
+		"name": "CS564 backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46048277"
+	},
+	"item": [
+		{
+			"name": "Get tracks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:53705/api/tracks?limit=100&offset=0&dir=desc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53705",
+					"path": [
+						"api",
+						"tracks"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "100"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "dir",
+							"value": "desc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get albums",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:53705/api/albums?limit=100&offset=0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53705",
+					"path": [
+						"api",
+						"albums"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "100"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get playlists",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ0ZXN0MSIsImlhdCI6MTc1NTc0MjM4OSwiZXhwIjoxNzU1NzQ1OTg5fQ.2EiHc48OyCVjYSqoQhbgjYy7FrlYnw8bmIp--v9NNZc",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseURL}}/api/playlists?limit=472&offset=451",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"playlists"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "472"
+						},
+						{
+							"key": "offset",
+							"value": "451"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get track details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:53705/api/tracks/2XU0oxnq2qxCpomAAuJY8K",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53705",
+					"path": [
+						"api",
+						"tracks",
+						"2XU0oxnq2qxCpomAAuJY8K"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get album details",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Get playlist details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:53705/api/playlists/3HjTMn6O6adW8vcSMnqmhw",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53705",
+					"path": [
+						"api",
+						"playlists",
+						"3HjTMn6O6adW8vcSMnqmhw"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:53705/api/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53705",
+					"path": [
+						"api",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"Joey1218\", \"password\": \"3572469\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:53705/api/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53705",
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add playlist",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJKb2V5MTIxOCIsImlhdCI6MTc1NTgyNzc5NCwiZXhwIjoxNzU1ODMxMzk0fQ.55NRhNShZFyGmHl7Irsn-IZC3gnCA6YykICbX2ZhdAY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\": \"Test2\", \"genre\": \"Test Genre\", \"subgenre\": \"Test SubGenre\", \"description\": \"Test description\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:53705/api/playlists",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53705",
+					"path": [
+						"api",
+						"playlists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add track",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJKb2V5MTIxOCIsImlhdCI6MTc1NTgwMDgwNSwiZXhwIjoxNzU1ODA0NDA1fQ.P2HVUz_V-wv06Dhh-gr1hTvYRQ0rTUqY_xy9VIE4Oyw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"track_id\": \"2XU0oxnq2qxCpomAAuJY8K\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/playlists/KqxTXInjU0UNhIvTqjHYBz/tracks",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"playlists",
+						"KqxTXInjU0UNhIvTqjHYBz",
+						"tracks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete playlist",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJKb2V5MTIxOCIsImlhdCI6MTc1NTgyNzc5NCwiZXhwIjoxNzU1ODMxMzk0fQ.55NRhNShZFyGmHl7Irsn-IZC3gnCA6YykICbX2ZhdAY",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:53705/api/playlists/3HjTMn6O6adW8vcSMnqmhw",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53705",
+					"path": [
+						"api",
+						"playlists",
+						"3HjTMn6O6adW8vcSMnqmhw"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://localhost:53705",
+			"type": "default"
+		}
+	]
+}
