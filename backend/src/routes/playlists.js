@@ -263,12 +263,19 @@ router.delete('/:id', authRequired, async (req, res, next) => {
 
     const pl = await get(`SELECT * FROM playlists WHERE playlist_id = ?;`, [playlist_id]);
     if (!pl) return res.status(404).json({ error: 'Playlist not found' });
-    if (pl.user_id !== req.user.id) return res.status(403).json({ error: 'Not owner' });
-    if (pl.is_seed === 1) return res.status(400).json({ error: 'Cannot delete seed playlist' });
-
-    // delete tracks first in case FK cascade isn't set
-    await run(`DELETE FROM appear_in WHERE playlist_id = ?;`, [playlist_id]);
-    await run(`DELETE FROM playlists WHERE playlist_id = ?;`, [playlist_id]);
+    // 1) Seed playlists are never deletable (and dataset rows have user_id NULL).
+    if (pl.is_seed === 1 || pl.user_id == null) {
+      return res.status(400).json({ error: 'Cannot delete seed playlist' });
+    }
+    // 2) Normalize types before comparing
+    const ownerId  = String(pl.user_id);
+    const viewerId = String(req.user?.id);
+    if (ownerId != viewerId) {
+      return res.status(403).json({ error: 'Not owner' });
+    }
+     // 3) Remove rows; delete from the actual join table (not the view)
+    await run(`DELETE FROM playlist_tracks WHERE playlist_id = ?;`, [playlist_id]);
+    await run(`DELETE FROM playlists       WHERE playlist_id = ?;`, [playlist_id]);
 
     res.status(204).end();
   } catch (err) {
