@@ -11,8 +11,9 @@ export default function PlaylistSearchSidebar({
   numDisplayed,
   disabled,
   onLoadLess,
+  onCreated,
 }) {
-  // ADDED: local state for create form
+  // local state for create form
   const [name, setName] = useState("");
   const [genre, setGenre] = useState("");
   const [subgenre, setSubgenre] = useState("");
@@ -37,7 +38,7 @@ export default function PlaylistSearchSidebar({
   }
   const hasToken = !!getToken();
 
-  // ADDED: submit handler for creating a playlist
+  // submit handler for creating a playlist
   async function onCreate(e) {
     e.preventDefault();
     if (!name.trim()) return;
@@ -74,8 +75,8 @@ export default function PlaylistSearchSidebar({
       setGenre("");
       setSubgenre("");
       setDescription("");
+      onCreated?.();  // ask parent to refetch so new item appears
       setOk("Playlist created!");
-      onReset?.();
     } catch (e) {
       setErr(e.message || String(e));
     } finally {
@@ -108,7 +109,7 @@ export default function PlaylistSearchSidebar({
         </Card>
       </div>
 
-      {/* ADDED: Create playlist (only shown if logged in) */}
+      {/* Create playlist (only shown if logged in) */}
       {hasToken && (
         <div className="mt-3">
           <Card>

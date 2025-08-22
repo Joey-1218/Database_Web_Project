@@ -54,20 +54,31 @@ export default function PlaylistInfoPage() {
     tracks = [];
   }
 
-  // IMPLEMENTED: delete handler with confirm + redirect + error handling
+  // delete handler with confirm + redirect + error handling
   const handleDelete = async () => {
     if (!window.confirm("Delete this playlist? This cannot be undone.")) return;
     try {
       setDeleting(true);
       await api.delete(`/playlists/${id}`);
-      // redirect after successful delete (adjust path to your routes if needed)
-      navigate("/playlists");
+
+      // 1) go back to the playlists page
+      navigate("/library/playlists", { replace: true });
+
+      // 2) force a refresh so the list re-queries and no stale item appears
+      //    (either option works; pick one and keep it)
+      setTimeout(() => {
+        // Option A: hard reload
+        window.location.reload();
+        // Option B: react-router hard reload
+        // navigate(0);
+      }, 0);
     } catch (e) {
       const msg = e?.response?.data?.error || e.message || "Delete failed";
       setErr(new Error(msg));
       setDeleting(false);
     }
   };
+
   return (
     <section className="playlist-page">
       <header className="playlist-header">

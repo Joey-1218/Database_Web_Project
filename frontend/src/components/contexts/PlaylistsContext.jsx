@@ -7,18 +7,20 @@ const PlaylistsContext = createContext({
   total: 0,
   isLoading: false,
   error: null,
-  loadPlaylists: () => {},
+  loadPlaylists: () => { },
 });
 export default PlaylistsContext;
 
 export function PlaylistsProvider({ children }) {
-  const [playlists, setPlaylists]   = useState([]);
-  const [total, setTotal]           = useState(0);
-  const [isLoading, setIsLoading]   = useState(false);
-  const [error, setError]           = useState(null);
-  const lastSigRef                  = useRef(null); // avoid duplicate calls in StrictMode
+  const [playlists, setPlaylists] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const lastSigRef = useRef(null); // avoid duplicate calls in StrictMode
+  const inFlightRef = useRef(false); // true while a request is running
 
-  const loadPlaylists = useCallback(async (opts = {}) => {
+  const loadPlaylists = useCallback(async (opts = {}, meta = {}) => {
+    const force = !!meta.force; // bypass dedupe when you *know* data changed
     const { name = "", limit = 100, offset = 0, mine = false } = opts;
     const params = { limit, offset };
     const trimmed = name.trim();
@@ -26,8 +28,10 @@ export function PlaylistsProvider({ children }) {
     if (mine) params.mine = true;
 
     const sig = JSON.stringify(params);
-    if (sig === lastSigRef.current) return;      // skip identical in-flight/in-dev duplicate
+    if (!force && sig === lastSigRef.current && inFlightRef.current) return;
+    // record the intent to fetch; allow same-sig again once the current one finishes
     lastSigRef.current = sig;
+    inFlightRef.current = true;
 
     setIsLoading(true);
     setError(null);
@@ -41,6 +45,7 @@ export function PlaylistsProvider({ children }) {
       setTotal(0);
     } finally {
       setIsLoading(false);
+      inFlightRef.current = false;
     }
   }, []);
 
